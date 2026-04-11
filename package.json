@@ -1,0 +1,21 @@
+{
+  "name": "operationhub",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "cd smart-campus-frontend && npm start",
+    "build": "cd smart-campus-frontend && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chamindu2003/it3030-paf-2026-smart-campus-group_WE_114_1.2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chamindu2003/it3030-paf-2026-smart-campus-group_WE_114_1.2/issues"
+  },
+  "homepage": "https://github.com/chamindu2003/it3030-paf-2026-smart-campus-group_WE_114_1.2#readme"
+}
