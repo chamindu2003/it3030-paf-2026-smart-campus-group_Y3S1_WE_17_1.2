@@ -20,7 +20,7 @@ public class userController {
 
     @GetMapping("/getUser")
     public String getUser() {
-        return "Hello User";
+        return "Hello";
     }
 
     @PostMapping("/login")

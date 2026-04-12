@@ -7,7 +7,6 @@ import com.SmartCampus.OperationHub.Repository.userRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class userService {
@@ -15,16 +14,11 @@ public class userService {
     @Autowired
     private userRepo userRepository;
 
+    @Autowired
+    private AuthService authService;
+
     public AuthResponse login(LoginRequest loginRequest) {
-        Optional<userModel> user = userRepository.findByEmail(loginRequest.getEmail());
-        
-        if (user.isPresent() && user.get().getPassword().equals(loginRequest.getPassword())) {
-            userModel foundUser = user.get();
-            String token = generateToken(foundUser.getId());
-            return new AuthResponse(token, foundUser.getRole());
-        }
-        
-        throw new RuntimeException("Invalid email or password");
+        return authService.login(loginRequest);
     }
 
     public userModel registerUser(userModel user) {
@@ -40,9 +34,5 @@ public class userService {
 
     public Optional<userModel> getUserById(Long id) {
         return userRepository.findById(id);
-    }
-
-    private String generateToken(Long userId) {
-        return UUID.randomUUID().toString() + "-" + userId;
     }
 }
