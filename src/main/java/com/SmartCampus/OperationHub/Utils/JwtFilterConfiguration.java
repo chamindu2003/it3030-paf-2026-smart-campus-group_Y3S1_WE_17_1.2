@@ -1,6 +1,5 @@
 package com.SmartCampus.OperationHub.Utils;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,16 +10,27 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JwtFilterConfiguration {
 
-    @Autowired
-    private JwtFilter jwtFilter;
+    /**
+     * Create JwtFilter bean
+     *
+     * @param jwtUtil the JWT utility for token operations
+     * @return JwtFilter instance
+     */
+    @Bean
+    public JwtFilter jwtFilter(JwtUtil jwtUtil) {
+        JwtFilter filter = new JwtFilter();
+        filter.setJwtUtil(jwtUtil);
+        return filter;
+    }
 
     /**
      * Register JWT Authentication Filter with Spring
      *
-     * @return FilterRegistrationBean configured with JwtAuthenticationFilter
+     * @param jwtFilter the JWT filter bean
+     * @return FilterRegistrationBean configured with JwtFilter
      */
     @Bean
-    public FilterRegistrationBean<JwtFilter> jwtFilter() {
+    public FilterRegistrationBean<JwtFilter> jwtFilterRegistration(JwtFilter jwtFilter) {
         FilterRegistrationBean<JwtFilter> registrationBean =
             new FilterRegistrationBean<>(jwtFilter);
         
