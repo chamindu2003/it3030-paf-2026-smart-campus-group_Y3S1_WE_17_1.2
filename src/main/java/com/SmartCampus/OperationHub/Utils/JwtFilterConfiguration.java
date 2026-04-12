@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 public class JwtFilterConfiguration {
 
     @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private JwtFilter jwtFilter;
 
     /**
      * Register JWT Authentication Filter with Spring
@@ -20,9 +20,9 @@ public class JwtFilterConfiguration {
      * @return FilterRegistrationBean configured with JwtAuthenticationFilter
      */
     @Bean
-    public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilter() {
-        FilterRegistrationBean<JwtAuthenticationFilter> registrationBean = 
-            new FilterRegistrationBean<>(jwtAuthenticationFilter);
+    public FilterRegistrationBean<JwtFilter> jwtFilter() {
+        FilterRegistrationBean<JwtFilter> registrationBean =
+            new FilterRegistrationBean<>(jwtFilter);
         
         // Add URL patterns to filter
         registrationBean.addUrlPatterns("/api/*", "/api/**");
