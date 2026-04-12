@@ -2,16 +2,17 @@ package com.SmartCampus.OperationHub.Utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Component
@@ -58,14 +59,15 @@ public class JwtUtil {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
-        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS256)
+            .claims(claims)
+            .subject(subject)
+            .id(UUID.randomUUID().toString())
+            .issuedAt(now)
+            .expiration(expiryDate)
+            .signWith(key)
                 .compact();
     }
 
@@ -98,7 +100,7 @@ public class JwtUtil {
      * @return all claims from the token
      */
     private Claims extractAllClaims(String token) {
-        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 
         return Jwts.parser()
                 .verifyWith(key)
@@ -156,7 +158,7 @@ public class JwtUtil {
      */
     public Boolean validateToken(String token) {
         try {
-            SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes());
+            SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
             Jwts.parser()
                     .verifyWith(key)
                     .build()
