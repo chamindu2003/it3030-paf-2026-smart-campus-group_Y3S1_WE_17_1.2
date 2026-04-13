@@ -5,6 +5,7 @@ import com.SmartCampus.OperationHub.DTO.AuthResponse;
 import com.SmartCampus.OperationHub.Model.userModel;
 import com.SmartCampus.OperationHub.Repository.userRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
@@ -17,6 +18,9 @@ public class userService {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public AuthResponse login(LoginRequest loginRequest) {
         return authService.login(loginRequest);
     }
@@ -25,6 +29,8 @@ public class userService {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
         }
+        // Encode password before saving
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 

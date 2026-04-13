@@ -6,6 +6,7 @@ import com.SmartCampus.OperationHub.Model.userModel;
 import com.SmartCampus.OperationHub.Repository.userRepo;
 import com.SmartCampus.OperationHub.Utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,10 +20,13 @@ public class AuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public AuthResponse login(LoginRequest loginRequest) {
         Optional<userModel> user = userRepository.findByEmail(loginRequest.getEmail());
 
-        if (user.isPresent() && user.get().getPassword().equals(loginRequest.getPassword())) {
+        if (user.isPresent() && passwordEncoder.matches(loginRequest.getPassword(), user.get().getPassword())) {
             userModel foundUser = user.get();
             String token = jwtUtil.generateToken(foundUser.getEmail());
             return new AuthResponse(token, foundUser.getRole());
