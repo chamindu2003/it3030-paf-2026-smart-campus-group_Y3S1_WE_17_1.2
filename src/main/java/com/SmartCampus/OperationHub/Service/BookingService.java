@@ -4,6 +4,7 @@ import com.SmartCampus.OperationHub.Model.Booking;
 import com.SmartCampus.OperationHub.Repository.BookingRepository;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Locale;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -90,6 +91,45 @@ public class BookingService {
         }
 
         booking.setStatus("APPROVED");
+        booking.setRejectionReason(null);
+        return bookingRepository.save(booking);
+    }
+
+    public List<Booking> getBookingsForUser(Long userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId is required");
+        }
+        return bookingRepository.findByUserIdOrderByBookingDateDescStartTimeDesc(userId);
+    }
+
+    /**
+     * User cancellation.
+     *
+     * Allowed transitions:
+     * - PENDING -> CANCELLED
+     * - APPROVED -> CANCELLED
+     */
+    public Booking cancelBooking(Long bookingId, Long userId) {
+        if (bookingId == null) {
+            throw new IllegalArgumentException("bookingId is required");
+        }
+        if (userId == null) {
+            throw new IllegalArgumentException("userId is required");
+        }
+
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+
+        if (!userId.equals(booking.getUserId())) {
+            throw new SecurityException("You can only cancel your own bookings");
+        }
+
+        String currentStatus = normalizeStatus(booking.getStatus());
+        if (!"PENDING".equals(currentStatus) && !"APPROVED".equals(currentStatus)) {
+            throw new IllegalStateException("Only PENDING or APPROVED bookings can be cancelled");
+        }
+
+        booking.setStatus("CANCELLED");
         booking.setRejectionReason(null);
         return bookingRepository.save(booking);
     }

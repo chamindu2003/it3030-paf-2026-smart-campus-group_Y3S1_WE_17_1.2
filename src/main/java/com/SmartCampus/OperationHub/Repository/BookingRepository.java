@@ -10,6 +10,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
+    List<Booking> findByUserIdOrderByBookingDateDescStartTimeDesc(Long userId);
+
     @Query(
             "SELECT b FROM Booking b " +
             "WHERE b.resourceId = :resId AND b.bookingDate = :date " +

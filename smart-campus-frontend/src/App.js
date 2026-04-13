@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import BookingRequestPage from './pages/BookingRequestPage';
+import UserBookingsPage from './pages/UserBookingsPage';
 
 function App() {
   return (
@@ -33,6 +34,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <BookingRequestPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/bookings"
+              element={
+                <ProtectedRoute>
+                  <UserBookingsPage />
                 </ProtectedRoute>
               }
             />

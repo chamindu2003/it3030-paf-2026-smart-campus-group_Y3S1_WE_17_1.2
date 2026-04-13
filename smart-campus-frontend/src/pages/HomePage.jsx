@@ -75,6 +75,10 @@ function HomePage() {
           Create booking
         </button>
 
+        <button className="refresh-btn" onClick={() => navigate('/bookings')}>
+          View my bookings
+        </button>
+
         <div className="auth-info">
           <h3>Authentication Info</h3>
           <p><strong>Token:</strong> {token?.substring(0, 20)}...</p>

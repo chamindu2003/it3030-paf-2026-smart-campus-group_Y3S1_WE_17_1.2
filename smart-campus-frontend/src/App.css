@@ -297,3 +297,115 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ============= Booking Dashboard ============= */
+.booking-dashboard-card {
+  max-width: 980px;
+}
+
+.booking-actions-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.booking-table {
+  width: 100%;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.booking-table-head,
+.booking-table-row {
+  display: grid;
+  grid-template-columns: 0.9fr 1fr 1.2fr 1fr 1.6fr 0.9fr;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 14px;
+}
+
+.booking-table-head {
+  background: #f6f7ff;
+  font-weight: 700;
+  color: #333;
+  font-size: 13px;
+  border-bottom: 1px solid #eee;
+}
+
+.booking-table-row {
+  background: #fff;
+  border-bottom: 1px solid #f2f2f2;
+  font-size: 14px;
+  color: #444;
+}
+
+.booking-table-row:last-child {
+  border-bottom: none;
+}
+
+.booking-table-empty {
+  padding: 18px 14px;
+  color: #666;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.status-pending {
+  background: #fff6db;
+  color: #8a5b00;
+}
+
+.status-approved {
+  background: #eafbf1;
+  color: #1f7a45;
+}
+
+.status-rejected {
+  background: #fee;
+  color: #b42318;
+}
+
+.status-cancelled {
+  background: #f2f2f2;
+  color: #444;
+}
+
+.cancel-btn {
+  background: #6b7280;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: #4b5563;
+}
+
+.booking-muted {
+  color: #999;
+}
+
+.booking-reason {
+  color: #555;
+}
+
+@media (max-width: 860px) {
+  .booking-table-head,
+  .booking-table-row {
+    grid-template-columns: 1fr 1fr 1.2fr 1fr;
+  }
+
+  .booking-table-head > :nth-child(5),
+  .booking-table-head > :nth-child(6),
+  .booking-table-row > :nth-child(5),
+  .booking-table-row > :nth-child(6) {
+    display: none;
+  }
+}
