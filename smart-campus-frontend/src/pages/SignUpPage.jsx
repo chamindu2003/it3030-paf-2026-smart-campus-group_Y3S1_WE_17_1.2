@@ -13,7 +13,7 @@ function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState('STUDENT');
+  const role = 'STUDENT';
   const [success, setSuccess] = useState(null);
   const { register, error, loading, clearError, setError } = useAuth();
   const navigate = useNavigate();

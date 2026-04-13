@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import './App.css';
@@ -7,9 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
-
-// Google OAuth Client ID - Make sure to set this in environment variables
-const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || 'your-google-client-id-here';
+import BookingRequestPage from './pages/BookingRequestPage';
 
 function App() {
   return (
@@ -27,6 +24,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <HomePage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/bookings/new"
+              element={
+                <ProtectedRoute>
+                  <BookingRequestPage />
                 </ProtectedRoute>
               }
             />
