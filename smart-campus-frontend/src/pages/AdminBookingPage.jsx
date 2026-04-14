@@ -16,7 +16,7 @@ function overlaps(a, b) {
   return a.startTime < b.endTime && a.endTime > b.startTime;
 }
 
-function AdminDashboardPage() {
+function AdminBookingPage() {
   const { user } = useAuth();
   const actingRole = 'ADMIN';
 
@@ -267,5 +267,5 @@ function AdminDashboardPage() {
   );
 }
 
-export default AdminDashboardPage;
+export default AdminBookingPage;
 
