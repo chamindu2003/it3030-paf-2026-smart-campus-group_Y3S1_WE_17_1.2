@@ -103,6 +103,16 @@ public class BookingService {
     }
 
     /**
+     * Admin dashboard query.
+     */
+    public List<Booking> searchBookingsForAdmin(Long userId, Long resourceId, String status, String actingRole) {
+        if (!isAdmin(actingRole)) {
+            throw new SecurityException("Only admins can view all bookings");
+        }
+        return bookingRepository.searchBookings(userId, resourceId, status);
+    }
+
+    /**
      * User cancellation.
      *
      * Allowed transitions:

@@ -48,6 +48,23 @@ public class BookingController {
         }
     }
 
+    @GetMapping("/admin")
+    public ResponseEntity<?> adminSearchBookings(
+            @RequestParam(value = "userId", required = false) Long userId,
+            @RequestParam(value = "resourceId", required = false) Long resourceId,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "actingRole") String actingRole
+    ) {
+        try {
+            List<Booking> bookings = bookingService.searchBookingsForAdmin(userId, resourceId, status, actingRole);
+            return ResponseEntity.ok(bookings);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     @PutMapping("/{id}/cancel")
     public ResponseEntity<?> cancelBooking(
             @PathVariable("id") Long bookingId,
