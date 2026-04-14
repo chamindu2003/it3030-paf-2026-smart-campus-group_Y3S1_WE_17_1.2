@@ -1,6 +1,5 @@
-package com.SmartCampus.OperationHub.Utils;
+package com.smartcampus.operationhub.utils;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -16,10 +15,12 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtUtil jwtUtil;
-
+    private final JwtUtil jwtUtil;
     private static final String AUTHORIZATION_HEADER = "Authorization";
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
     private static final String BEARER_PREFIX = "Bearer ";
 
     @Override

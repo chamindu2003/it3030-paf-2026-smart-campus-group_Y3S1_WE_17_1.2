@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import authService from '../api/authService';
 
 function SignUpPage({ onSignUpSuccess }) {
@@ -76,5 +77,9 @@ function SignUpPage({ onSignUpSuccess }) {
     </div>
   );
 }
+
+SignUpPage.propTypes = {
+  onSignUpSuccess: PropTypes.func,
+};
 
 export default SignUpPage;

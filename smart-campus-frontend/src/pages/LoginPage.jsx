@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import authService from '../api/authService';
+
 
 function LoginPage({ onLoginSuccess }) {
   const [email, setEmail] = useState('admin@example.com');
@@ -62,5 +64,9 @@ function LoginPage({ onLoginSuccess }) {
     </div>
   );
 }
+
+LoginPage.propTypes = {
+  onLoginSuccess: PropTypes.func.isRequired,
+};
 
 export default LoginPage;

@@ -1,4 +1,4 @@
-package com.SmartCampus.OperationHub.Model;
+package com.smartcampus.operationhub.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class userModel {
+public class UserModel {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

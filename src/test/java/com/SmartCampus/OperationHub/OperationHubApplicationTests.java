@@ -1,4 +1,4 @@
-package com.SmartCampus.OperationHub;
+package com.smartcampus.operationhub;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

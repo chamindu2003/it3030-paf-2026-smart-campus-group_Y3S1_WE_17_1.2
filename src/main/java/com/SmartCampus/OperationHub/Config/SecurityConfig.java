@@ -1,7 +1,7 @@
-package com.SmartCampus.OperationHub.Config;
+package com.smartcampus.operationhub.config;
 
-import com.SmartCampus.OperationHub.Utils.JwtFilter;
-import com.SmartCampus.OperationHub.Utils.JwtUtil;
+import com.smartcampus.operationhub.utils.JwtFilter;
+import com.smartcampus.operationhub.utils.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -28,9 +28,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtFilter jwtFilter(JwtUtil jwtUtil) {
-        JwtFilter jwtFilter = new JwtFilter();
-        jwtFilter.setJwtUtil(jwtUtil);
-        return jwtFilter;
+        return new JwtFilter(jwtUtil);
     }
 
     @Bean
@@ -48,7 +46,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())

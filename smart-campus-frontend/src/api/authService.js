@@ -1,4 +1,5 @@
 import { authAPI } from './apiService';
+import axiosInstance from './axiosInstance';
 
 /**
  * Authentication Service
@@ -14,13 +15,20 @@ class AuthService {
    */
   async login(email, password) {
     try {
-      const response = await authAPI.login(email, password);
+      const response = await axiosInstance.post('/auth/login', { email, password });
+      const responseData = response.data;
+      const token = responseData?.token || responseData?.jwt || responseData?.accessToken;
 
-      // Store token and user data
-      authAPI.setAuthData(response.token, response);
+      // Store JWT token if present in the login response
+      if (token) {
+        localStorage.setItem('token', token);
+      }
+
+      // Preserve existing session metadata behavior
+      localStorage.setItem('user', JSON.stringify(responseData));
       localStorage.setItem('userEmail', email);
 
-      return response;
+      return responseData;
     } catch (error) {
       console.error('Login failed:', error.response?.data || error.message);
       throw error;

@@ -1,4 +1,4 @@
-package com.SmartCampus.OperationHub.Utils;
+package com.smartcampus.operationhub.utils;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,3 +1,4 @@
+/* global globalThis */
 import axios from 'axios';
 
 /**
@@ -50,7 +51,9 @@ axiosInstance.interceptors.response.use(
       // Clear token and redirect to login
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      if (globalThis.window !== undefined) {
+        globalThis.window.location.href = '/login';
+      }
     }
 
     return Promise.reject(error);

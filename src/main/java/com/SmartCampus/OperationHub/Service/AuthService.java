@@ -1,11 +1,11 @@
-package com.SmartCampus.OperationHub.Service;
+package com.smartcampus.operationhub.service;
 
-import com.SmartCampus.OperationHub.DTO.AuthResponse;
-import com.SmartCampus.OperationHub.DTO.LoginRequest;
-import com.SmartCampus.OperationHub.Model.userModel;
-import com.SmartCampus.OperationHub.Repository.userRepo;
-import com.SmartCampus.OperationHub.Utils.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.smartcampus.operationhub.dto.AuthResponse;
+import com.smartcampus.operationhub.dto.LoginRequest;
+import com.smartcampus.operationhub.model.UserModel;
+import com.smartcampus.operationhub.repository.UserRepo;
+import com.smartcampus.operationhub.utils.JwtUtil;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,24 +14,27 @@ import java.util.Optional;
 @Service
 public class AuthService {
 
-    @Autowired
-    private userRepo userRepository;
+    private final UserRepo userRepository;
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+
+    public AuthService(UserRepo userRepository, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     public AuthResponse login(LoginRequest loginRequest) {
-        Optional<userModel> user = userRepository.findByEmail(loginRequest.getEmail());
+        Optional<UserModel> user = userRepository.findByEmail(loginRequest.getEmail());
 
         if (user.isPresent() && passwordEncoder.matches(loginRequest.getPassword(), user.get().getPassword())) {
-            userModel foundUser = user.get();
+            UserModel foundUser = user.get();
             String token = jwtUtil.generateToken(foundUser.getEmail());
             return new AuthResponse(token, foundUser.getRole());
         }
 
-        throw new RuntimeException("Invalid email or password");
+        throw new BadCredentialsException("Invalid email or password");
     }
 }

@@ -1,10 +1,9 @@
-package com.SmartCampus.OperationHub.Utils;
+package com.smartcampus.operationhub.utils;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -17,10 +16,9 @@ public class JwtFilter extends OncePerRequestFilter {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
-    public void setJwtUtil(JwtUtil jwtUtil) {
+    public JwtFilter(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
     }
 
@@ -35,7 +33,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
             String token = authorizationHeader.substring(BEARER_PREFIX.length());
 
-            if (jwtUtil.validateToken(token)) {
+            if (Boolean.TRUE.equals(jwtUtil.validateToken(token))) {
                 String username = jwtUtil.extractUsername(token);
 
                 UsernamePasswordAuthenticationToken authenticationToken =

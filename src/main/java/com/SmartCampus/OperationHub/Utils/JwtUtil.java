@@ -1,4 +1,4 @@
-package com.SmartCampus.OperationHub.Utils;
+package com.smartcampus.operationhub.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
