@@ -3,10 +3,18 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import './App.css';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import { useAuth } from './hooks/useAuth';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import BookingRequestPage from './pages/BookingRequestPage';
 import UserBookingsPage from './pages/UserBookingsPage';
+import AdminBookingPage from './pages/AdminBookingPage';
+
+function BookingsLanding() {
+  const { user } = useAuth();
+  const role = String(user?.role || '').trim().toUpperCase();
+  return role === 'ADMIN' ? <AdminBookingPage /> : <UserBookingsPage />;
+}
 
 function App() {
   return (
@@ -32,7 +40,7 @@ function App() {
               path="/bookings"
               element={
                 <ProtectedRoute>
-                  <UserBookingsPage />
+                  <BookingsLanding />
                 </ProtectedRoute>
               }
             />
