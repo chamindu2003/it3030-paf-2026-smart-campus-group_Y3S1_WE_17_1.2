@@ -3,7 +3,6 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import './App.css';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import BookingRequestPage from './pages/BookingRequestPage';
@@ -20,15 +19,6 @@ function App() {
             <Route path="/signup" element={<SignUpPage />} />
 
             {/* Protected Routes */}
-            <Route
-              path="/home"
-              element={
-                <ProtectedRoute>
-                  <HomePage />
-                </ProtectedRoute>
-              }
-            />
-
             <Route
               path="/bookings/new"
               element={
@@ -48,10 +38,10 @@ function App() {
             />
 
             {/* Root redirect */}
-            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route path="/" element={<Navigate to="/bookings" replace />} />
 
             {/* Catch-all redirect */}
-            <Route path="*" element={<Navigate to="/home" replace />} />
+            <Route path="*" element={<Navigate to="/bookings" replace />} />
           </Routes>
         </AuthProvider>
       </Router>

@@ -40,7 +40,7 @@ function SignUpPage() {
 
       // Redirect to home after registration
       setTimeout(() => {
-        navigate('/home');
+        navigate('/bookings');
       }, 1500);
     } catch (err) {
       // Error is handled by useAuth hook
@@ -49,7 +49,7 @@ function SignUpPage() {
   };
 
   const handleGoogleSuccess = () => {
-    navigate('/home');
+    navigate('/bookings');
   };
 
   const handleGoogleError = () => {

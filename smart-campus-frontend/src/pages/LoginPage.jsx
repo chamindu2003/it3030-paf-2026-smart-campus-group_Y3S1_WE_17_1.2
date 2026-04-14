@@ -28,8 +28,8 @@ function LoginPage() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       }
-      // Navigate to home on success
-      navigate('/home');
+      // Navigate to bookings on success
+      navigate('/bookings');
     } catch (err) {
       // Error is handled by useAuth hook
       console.error('Login failed:', err);
@@ -38,7 +38,7 @@ function LoginPage() {
 
   const handleGoogleSuccess = (response) => {
     console.log('Google login successful');
-    navigate('/home');
+    navigate('/bookings');
   };
 
   const handleGoogleError = (error) => {

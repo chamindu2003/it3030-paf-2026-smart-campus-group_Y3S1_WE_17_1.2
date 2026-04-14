@@ -9,7 +9,7 @@ function BookingRequestPage() {
       <div className="dashboard-card">
         <div className="dashboard-header">
           <h1>Create Booking</h1>
-          <button className="logout-btn" onClick={() => navigate('/home')}>
+          <button className="logout-btn" onClick={() => navigate('/bookings')}>
             Back
           </button>
         </div>
