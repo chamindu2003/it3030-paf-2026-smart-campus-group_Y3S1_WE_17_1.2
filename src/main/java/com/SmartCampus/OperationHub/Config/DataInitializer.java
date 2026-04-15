@@ -1,7 +1,7 @@
-package com.smartcampus.operationhub.config;
+package com.SmartCampus.OperationHub.Config;
 
-import com.smartcampus.operationhub.model.UserModel;
-import com.smartcampus.operationhub.repository.UserRepo;
+import com.SmartCampus.OperationHub.Model.UserModel;
+import com.SmartCampus.OperationHub.Repository.UserRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,4 +1,4 @@
-package com.smartcampus.operationhub.utils;
+package com.SmartCampus.OperationHub.Utils;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;

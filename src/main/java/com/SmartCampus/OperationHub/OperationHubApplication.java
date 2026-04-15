@@ -1,4 +1,4 @@
-package com.smartcampus.operationhub;
+package com.SmartCampus.OperationHub;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

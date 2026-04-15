@@ -1,9 +1,9 @@
-package com.smartcampus.operationhub.service;
+package com.SmartCampus.OperationHub.Service;
 
-import com.smartcampus.operationhub.dto.LoginRequest;
-import com.smartcampus.operationhub.dto.AuthResponse;
-import com.smartcampus.operationhub.model.UserModel;
-import com.smartcampus.operationhub.repository.UserRepo;
+import com.SmartCampus.OperationHub.DTO.LoginRequest;
+import com.SmartCampus.OperationHub.DTO.AuthResponse;
+import com.SmartCampus.OperationHub.Model.UserModel;
+import com.SmartCampus.OperationHub.Repository.UserRepo;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Optional;

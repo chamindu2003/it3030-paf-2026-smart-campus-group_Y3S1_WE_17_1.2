@@ -1,10 +1,10 @@
-package com.smartcampus.operationhub.service;
+package com.SmartCampus.OperationHub.Service;
 
-import com.smartcampus.operationhub.dto.AuthResponse;
-import com.smartcampus.operationhub.model.UserModel;
-import com.smartcampus.operationhub.repository.UserRepo;
-import com.smartcampus.operationhub.utils.GoogleTokenVerifier;
-import com.smartcampus.operationhub.utils.JwtUtil;
+import com.SmartCampus.OperationHub.DTO.AuthResponse;
+import com.SmartCampus.OperationHub.Model.UserModel;
+import com.SmartCampus.OperationHub.Repository.UserRepo;
+import com.SmartCampus.OperationHub.Utils.GoogleTokenVerifier;
+import com.SmartCampus.OperationHub.Utils.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

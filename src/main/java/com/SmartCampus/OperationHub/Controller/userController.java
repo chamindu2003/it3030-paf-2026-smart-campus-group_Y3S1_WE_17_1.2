@@ -1,10 +1,10 @@
-package com.smartcampus.operationhub.controller;
+package com.SmartCampus.OperationHub.Controller;
 
-import com.smartcampus.operationhub.dto.LoginRequest;
-import com.smartcampus.operationhub.dto.AuthResponse;
-import com.smartcampus.operationhub.dto.UserDTO;
-import com.smartcampus.operationhub.model.UserModel;
-import com.smartcampus.operationhub.service.UserService;
+import com.SmartCampus.OperationHub.DTO.LoginRequest;
+import com.SmartCampus.OperationHub.DTO.AuthResponse;
+import com.SmartCampus.OperationHub.DTO.UserDTO;
+import com.SmartCampus.OperationHub.Model.UserModel;
+import com.SmartCampus.OperationHub.Service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

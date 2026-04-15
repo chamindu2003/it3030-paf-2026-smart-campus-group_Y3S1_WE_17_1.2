@@ -1,4 +1,4 @@
-package com.smartcampus.operationhub.dto;
+package com.SmartCampus.OperationHub.DTO;
 
 public class UserDTO {
 	private String name;

@@ -1,7 +1,7 @@
-package com.smartcampus.operationhub.config;
+package com.SmartCampus.OperationHub.Config;
 
-import com.smartcampus.operationhub.utils.JwtFilter;
-import com.smartcampus.operationhub.utils.JwtUtil;
+import com.SmartCampus.OperationHub.Utils.JwtFilter;
+import com.SmartCampus.OperationHub.Utils.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;

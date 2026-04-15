@@ -1,4 +1,4 @@
-package com.smartcampus.operationhub.model;
+package com.SmartCampus.OperationHub.Model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

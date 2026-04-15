@@ -1,4 +1,4 @@
-package com.smartcampus.operationhub.dto;
+package com.SmartCampus.OperationHub.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
