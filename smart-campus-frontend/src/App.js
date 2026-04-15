@@ -1,49 +1,45 @@
 import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import './App.css';
-import authService from './api/authService';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 
-// Main App Component
+// Google OAuth Client ID - Make sure to set this in environment variables
+const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || 'your-google-client-id-here';
+
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(authService.isLoggedIn());
-  const [user, setUser] = useState(authService.getCurrentUser());
-  const [activePage, setActivePage] = useState('login');
-
-  const handleLoginSuccess = (userData) => {
-    setUser(userData);
-    setIsLoggedIn(true);
-  };
-
-  const handleLogout = () => {
-    authService.logout();
-    setUser(null);
-    setIsLoggedIn(false);
-    setActivePage('login');
-  };
-
   return (
-    <div className="App">
-      {isLoggedIn ? (
-        <HomePage user={user} onLogout={handleLogout} />
-      ) : (
-        <>
-          {activePage === 'signup' ? (
-            <SignUpPage onSignUpSuccess={() => setActivePage('login')} />
-          ) : (
-            <LoginPage onLoginSuccess={handleLoginSuccess} />
-          )}
+    <GoogleOAuthProvider clientId="584522305897-e4imhiui27j808mdctedqalbf3bc605e.apps.googleusercontent.com">
+      <Router>
+        <AuthProvider>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
 
-          <button
-            className="toggle-btn global-toggle"
-            onClick={() => setActivePage((prev) => (prev === 'login' ? 'signup' : 'login'))}
-          >
-            {activePage === 'signup' ? 'Already have account? Login' : "Don't have account? Sign up"}
-          </button>
-        </>
-      )}
-    </div>
+            {/* Protected Routes */}
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Root redirect */}
+            <Route path="/" element={<Navigate to="/home" replace />} />
+
+            {/* Catch-all redirect */}
+            <Route path="*" element={<Navigate to="/home" replace />} />
+          </Routes>
+        </AuthProvider>
+      </Router>
+    </GoogleOAuthProvider>
   );
 }
 

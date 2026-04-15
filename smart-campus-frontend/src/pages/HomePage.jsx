@@ -1,14 +1,23 @@
 import { useCallback, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import authService from '../api/authService';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import { userAPI } from '../api/apiService';
 
-function HomePage({ user, onLogout }) {
+/**
+ * HomePage Component
+ * Protected page accessible only to authenticated users
+ * Uses AuthContext via useAuth hook
+ */
+function HomePage() {
+  const { user, token, logout, isAuthenticated } = useAuth();
   const [userData, setUserData] = useState(user);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const loadUserData = useCallback(async () => {
+    if (!user?.email) return;
+
     setLoading(true);
     setError(null);
 
@@ -20,27 +29,38 @@ function HomePage({ user, onLogout }) {
     } finally {
       setLoading(false);
     }
-  }, [user.email]);
+  }, [user?.email]);
 
   useEffect(() => {
     loadUserData();
   }, [loadUserData]);
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  if (!isAuthenticated || !user) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-card">
         <div className="dashboard-header">
-          <h1>Welcome, {userData.name}!</h1>
-          <button className="logout-btn" onClick={onLogout}>Logout</button>
+          <h1>Welcome, {userData?.name || user.name}!</h1>
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
         </div>
 
         {error && <div className="error-message">{error}</div>}
 
         <div className="user-info">
           <h2>Your Profile</h2>
-          <p><strong>Name:</strong> {userData.name}</p>
-          <p><strong>Email:</strong> {userData.email}</p>
-          <p><strong>Role:</strong> {userData.role}</p>
+          <p><strong>Name:</strong> {userData?.name || user.name}</p>
+          <p><strong>Email:</strong> {userData?.email || user.email}</p>
+          <p><strong>Role:</strong> {userData?.role || user.role}</p>
         </div>
 
         <button
@@ -53,8 +73,8 @@ function HomePage({ user, onLogout }) {
 
         <div className="auth-info">
           <h3>Authentication Info</h3>
-          <p><strong>Token:</strong> {authService.getToken()?.substring(0, 20)}...</p>
-          <p><strong>Status:</strong> {authService.isLoggedIn() ? 'Logged In' : 'Not Logged In'}</p>
+          <p><strong>Token:</strong> {token?.substring(0, 20)}...</p>
+          <p><strong>Status:</strong> {isAuthenticated ? 'Logged In ✓' : 'Not Logged In'}</p>
         </div>
       </div>
     </div>
@@ -63,11 +83,3 @@ function HomePage({ user, onLogout }) {
 
 export default HomePage;
 
-HomePage.propTypes = {
-  user: PropTypes.shape({
-    email: PropTypes.string.isRequired,
-    name: PropTypes.string,
-    role: PropTypes.string,
-  }).isRequired,
-  onLogout: PropTypes.func.isRequired,
-};

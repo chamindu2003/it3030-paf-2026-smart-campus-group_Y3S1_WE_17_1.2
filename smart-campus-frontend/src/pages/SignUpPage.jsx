@@ -1,35 +1,42 @@
-import { useState } from 'react';
-import PropTypes from 'prop-types';
-import authService from '../api/authService';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import '../styles/auth.css';
 
-function SignUpPage({ onSignUpSuccess }) {
+/**
+ * SignUpPage Component
+ * Uses AuthContext via useAuth hook for global authentication
+ */
+function SignUpPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [role, setRole] = useState('STUDENT');
   const [success, setSuccess] = useState(null);
+  const { register, error, loading, clearError } = useAuth();
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
+    clearError();
     setSuccess(null);
 
     try {
-      await authService.register(name, email, password, 'USER');
-      setSuccess('Registration successful! You can now log in.');
+      await register(name, email, password, role);
+      setSuccess('Registration successful! You are now logged in.');
+
+      // Reset form
       setName('');
       setEmail('');
       setPassword('');
 
-      if (onSignUpSuccess) {
-        onSignUpSuccess();
-      }
+      // Redirect to home after registration
+      setTimeout(() => {
+        navigate('/home');
+      }, 1500);
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
-    } finally {
-      setLoading(false);
+      // Error is handled by useAuth hook
+      console.error('Registration failed:', err);
     }
   };
 
@@ -38,8 +45,18 @@ function SignUpPage({ onSignUpSuccess }) {
       <div className="auth-card">
         <h2>Sign Up</h2>
 
-        {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
+        {error && (
+          <div className="error-message">
+            <p>{error}</p>
+            <button onClick={clearError} className="dismiss-btn">✕</button>
+          </div>
+        )}
+
+        {success && (
+          <div className="success-message">
+            <p>{success}</p>
+          </div>
+        )}
 
         <form onSubmit={handleRegister}>
           <input
@@ -69,17 +86,28 @@ function SignUpPage({ onSignUpSuccess }) {
             required
           />
 
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            disabled={loading}
+            className="role-select"
+          >
+            <option value="STUDENT">Student</option>
+            <option value="TEACHER">Teacher</option>
+            <option value="ADMIN">Admin</option>
+          </select>
+
           <button type="submit" disabled={loading}>
             {loading ? 'Creating account...' : 'Create account'}
           </button>
         </form>
+
+        <div className="auth-link">
+          <p>Already have an account? <Link to="/login">Login here</Link></p>
+        </div>
       </div>
     </div>
   );
 }
-
-SignUpPage.propTypes = {
-  onSignUpSuccess: PropTypes.func,
-};
 
 export default SignUpPage;

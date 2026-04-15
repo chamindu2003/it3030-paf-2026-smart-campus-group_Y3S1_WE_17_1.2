@@ -22,9 +22,19 @@ public class UserModel {
     @Column(nullable = false, unique = true)
     private String email;
     
-    @Column(nullable = false)
+    @Column
     private String password;
     
     @Column(nullable = false)
     private String role;
+    
+    // OAuth Provider fields
+    @Column
+    private String provider; // e.g., "google", "github", "local"
+    
+    @Column
+    private String providerId; // OAuth provider's user ID
+    
+    @Column
+    private String profilePicture; // Profile picture URL from OAuth provider
 }

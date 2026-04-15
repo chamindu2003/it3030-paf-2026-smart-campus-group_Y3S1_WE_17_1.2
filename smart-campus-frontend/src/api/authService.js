@@ -61,6 +61,65 @@ class AuthService {
   }
 
   /**
+   * OAuth 2.0 Login with Google
+   * @param {string} idToken - Google ID token from Google Sign-In
+   * @returns {Promise<Object>} - User data with JWT token
+   */
+  async loginWithGoogle(idToken) {
+    try {
+      const response = await axiosInstance.post('/auth/google/login', {
+        idToken,
+        provider: 'google'
+      });
+      const responseData = response.data;
+      const token = responseData?.token || responseData?.jwt || responseData?.accessToken;
+
+      // Store JWT token
+      if (token) {
+        localStorage.setItem('token', token);
+      }
+
+      // Store user data
+      localStorage.setItem('user', JSON.stringify(responseData));
+
+      return responseData;
+    } catch (error) {
+      console.error('Google login failed:', error.response?.data || error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Generic OAuth 2.0 Login method
+   * @param {string} provider - OAuth provider name (e.g., 'google')
+   * @param {string} idToken - ID token from OAuth provider
+   * @returns {Promise<Object>} - User data with JWT token
+   */
+  async loginWithOAuth(provider, idToken) {
+    try {
+      const response = await axiosInstance.post('/auth/oauth2/login', {
+        idToken,
+        provider
+      });
+      const responseData = response.data;
+      const token = responseData?.token || responseData?.jwt || responseData?.accessToken;
+
+      // Store JWT token
+      if (token) {
+        localStorage.setItem('token', token);
+      }
+
+      // Store user data
+      localStorage.setItem('user', JSON.stringify(responseData));
+
+      return responseData;
+    } catch (error) {
+      console.error(`${provider} login failed:`, error.response?.data || error.message);
+      throw error;
+    }
+  }
+
+  /**
    * Check if user is currently logged in
    * @returns {boolean} - True if user is authenticated
    */

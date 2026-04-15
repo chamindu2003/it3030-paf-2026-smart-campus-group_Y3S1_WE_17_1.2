@@ -54,7 +54,8 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/v1/login", "/api/v1/register", "/api/v1/getUser").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/oauth2/login", "/api/auth/google/login",
+                                "/api/v1/login", "/api/v1/register", "/api/v1/getUser").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
