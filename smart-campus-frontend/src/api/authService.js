@@ -67,25 +67,55 @@ class AuthService {
    */
   async loginWithGoogle(idToken) {
     try {
+      console.log('Starting Google login with token length:', idToken?.length);
+
+      if (!idToken) {
+        throw new Error('No ID token provided');
+      }
+
+      console.log('Calling backend /auth/google/login endpoint...');
       const response = await axiosInstance.post('/auth/google/login', {
         idToken,
         provider: 'google'
       });
+
+      console.log('Backend response received:', response.status);
       const responseData = response.data;
       const token = responseData?.token || responseData?.jwt || responseData?.accessToken;
 
-      // Store JWT token
-      if (token) {
-        localStorage.setItem('token', token);
+      // Validate token
+      if (!token) {
+        throw new Error('No token received from server');
       }
+
+      console.log('Token received, storing in localStorage...');
+      // Store JWT token
+      localStorage.setItem('token', token);
 
       // Store user data
       localStorage.setItem('user', JSON.stringify(responseData));
+      console.log('Google login successful, user stored');
 
       return responseData;
     } catch (error) {
-      console.error('Google login failed:', error.response?.data || error.message);
-      throw error;
+      console.error('Google login failed - Full error:', error);
+      console.error('Error status:', error.response?.status);
+      console.error('Error data:', error.response?.data);
+      console.error('Error message:', error.message);
+
+      // Create a more informative error message
+      let errorMessage = 'Google login failed. ';
+      if (error.response?.status === 401) {
+        errorMessage += 'Unauthorized. Please check your credentials.';
+      } else if (error.response?.status === 400) {
+        errorMessage += 'Invalid request. ' + (error.response?.data?.message || '');
+      } else if (error.response?.data?.message) {
+        errorMessage += error.response.data.message;
+      } else {
+        errorMessage += error.message;
+      }
+
+      throw new Error(errorMessage);
     }
   }
 

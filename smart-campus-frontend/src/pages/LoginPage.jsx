@@ -99,20 +99,6 @@ function LoginPage() {
           </button>
         </form>
 
-        <div className="demo-credentials">
-          <p><strong>Demo Credentials:</strong></p>
-          <p>Email: admin@example.com</p>
-          <p>Password: admin123</p>
-          <button
-            type="button"
-            onClick={handleTestLogin}
-            disabled={loading}
-            className="test-btn"
-          >
-            {loading ? 'Logging in...' : 'Login with Demo Account'}
-          </button>
-        </div>
-
         <div className="auth-link">
           <p>Don't have an account? <Link to="/signup">Sign up here</Link></p>
         </div>
