@@ -13,7 +13,6 @@ function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState('STUDENT');
   const [success, setSuccess] = useState(null);
   const { register, error, loading, clearError, setError } = useAuth();
   const navigate = useNavigate();
@@ -29,7 +28,7 @@ function SignUpPage() {
     }
 
     try {
-      await register(name, email, password, role);
+      await register(name, email, password);
       setSuccess('Registration successful! You are now logged in.');
 
       // Reset form
@@ -182,8 +181,7 @@ function SignUpPage() {
               </div>
             </div>
 
-            {/* Keep role support, but hide it for now to match the screenshot UI. */}
-            <input type="hidden" value={role} readOnly />
+            {/* Role is automatically assigned as 'USER' by backend */}
 
             <button className="signup-submit" type="submit" disabled={loading}>
               {loading ? 'Creating account...' : 'Create account'}

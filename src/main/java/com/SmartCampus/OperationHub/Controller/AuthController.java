@@ -37,7 +37,8 @@ public class AuthController {
             AuthResponse response = userService.login(loginRequest);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new AuthResponse(null, null, "Login failed: " + e.getMessage()));
         }
     }
 
@@ -56,10 +57,10 @@ public class AuthController {
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new AuthResponse(null, "Invalid request: " + e.getMessage()));
+                    .body(new AuthResponse(null, null, "Invalid request: " + e.getMessage()));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new AuthResponse(null, "Authentication failed: " + e.getMessage()));
+                    .body(new AuthResponse(null, null, "Authentication failed: " + e.getMessage()));
         }
     }
 
@@ -71,11 +72,19 @@ public class AuthController {
     @PostMapping("/google/login")
     public ResponseEntity<AuthResponse> googleLogin(@RequestBody OAuth2LoginRequest oauthRequest) {
         try {
+            if (oauthRequest.getIdToken() == null || oauthRequest.getIdToken().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new AuthResponse(null, null, "ID token is required"));
+            }
+            
             AuthResponse response = oauth2Service.loginWithGoogle(oauthRequest.getIdToken());
             return ResponseEntity.ok(response);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new AuthResponse(null, null, "Google authentication failed: " + e.getMessage()));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new AuthResponse(null, "Google authentication failed: " + e.getMessage()));
+                    .body(new AuthResponse(null, null, "Google authentication failed: " + e.getMessage()));
         }
     }
 }

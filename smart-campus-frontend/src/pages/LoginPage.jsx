@@ -10,9 +10,9 @@ import '../styles/login.css';
  */
 function LoginPage() {
   const [email, setEmail] = React.useState('admin@example.com');
-  const [password, setPassword] = React.useState('admin123');
+  const [password, setPassword] = React.useState('ChangeMeAdmin@2026');
   const [rememberMe, setRememberMe] = React.useState(true);
-  const { login, error, loading, clearError, setError } = useAuth();
+  const { login, error, loading, clearError, setError, updateUser } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -36,19 +36,36 @@ function LoginPage() {
     }
   };
 
-  const handleTestLogin = async () => {
-    clearError();
-    try {
-      await login('admin@example.com', 'admin123');
-      navigate('/home');
-    } catch (err) {
-      console.error('Test login failed:', err);
-    }
-  };
-
   const handleGoogleSuccess = (response) => {
-    console.log('Google login successful');
-    navigate('/home');
+    try {
+      console.log('[LoginPage] Google login success handler called');
+      console.log('[LoginPage] Full response:', JSON.stringify(response, null, 2));
+      
+      // Extract token from response
+      const token = response?.token;
+      
+      if (!token) {
+        console.error('[LoginPage] ✗ No token received in response');
+        setError('Login failed: No authentication token received.');
+        return;
+      }
+
+      console.log('[LoginPage] ✓ Token found:', token.substring(0, 20) + '...');
+      
+      // Update context with user data
+      console.log('[LoginPage] Updating user context...');
+      updateUser(response);
+
+      // Small delay to ensure state updates
+      setTimeout(() => {
+        console.log('[LoginPage] ✓ Navigating to /home');
+        navigate('/home');
+      }, 100);
+      
+    } catch (e) {
+      console.error('[LoginPage] Exception in handleGoogleSuccess:', e);
+      setError('Session error. Please try signing in again.');
+    }
   };
 
   const handleGoogleError = (error) => {
