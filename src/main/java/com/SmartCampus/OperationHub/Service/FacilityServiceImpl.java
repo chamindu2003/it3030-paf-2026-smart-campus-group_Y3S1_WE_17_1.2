@@ -6,16 +6,18 @@ import com.SmartCampus.OperationHub.Enums.FacilityStatus;
 import com.SmartCampus.OperationHub.Enums.FacilityType;
 import com.SmartCampus.OperationHub.Model.Facility;
 import com.SmartCampus.OperationHub.Repository.FacilityRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class FacilityServiceImpl implements FacilityService {
 
     private final FacilityRepository facilityRepository;
+
+    public FacilityServiceImpl(FacilityRepository facilityRepository) {
+        this.facilityRepository = facilityRepository;
+    }
 
     // GET ALL (with filters)
     @Override

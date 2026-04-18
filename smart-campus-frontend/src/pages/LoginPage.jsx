@@ -36,16 +36,6 @@ function LoginPage() {
     }
   };
 
-  const handleTestLogin = async () => {
-    clearError();
-    try {
-      await login('admin@example.com', 'admin123');
-      navigate('/home');
-    } catch (err) {
-      console.error('Test login failed:', err);
-    }
-  };
-
   const handleGoogleSuccess = (response) => {
     console.log('Google login successful');
     navigate('/home');
@@ -166,8 +156,6 @@ function LoginPage() {
             Don&apos;t have an account? <Link to="/signup">Sign up</Link>
           </div>
 
-          {/* Optional helper removed from UI; keep function for quick testing in dev */}
-          {/* <button type="button" onClick={handleTestLogin} disabled={loading}>Test login</button> */}
         </section>
       </main>
     </div>

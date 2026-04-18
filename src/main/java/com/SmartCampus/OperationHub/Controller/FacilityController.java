@@ -6,7 +6,6 @@ import com.SmartCampus.OperationHub.Enums.FacilityStatus;
 import com.SmartCampus.OperationHub.Enums.FacilityType;
 import com.SmartCampus.OperationHub.Service.FacilityService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +13,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/facilities")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class FacilityController {
 
     private final FacilityService facilityService;
+
+    public FacilityController(FacilityService facilityService) {
+        this.facilityService = facilityService;
+    }
 
     // GET all + search/filter
     @GetMapping
