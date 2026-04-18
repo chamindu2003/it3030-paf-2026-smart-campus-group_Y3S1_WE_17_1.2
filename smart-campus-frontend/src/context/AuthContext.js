@@ -115,7 +115,12 @@ export const AuthProvider = ({ children }) => {
 
       return response;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Registration failed';
+      const backendData = err.response?.data;
+      const errorMessage =
+        backendData?.message ||
+        (typeof backendData === 'string' ? backendData : null) ||
+        err.message ||
+        'Registration failed';
       setError(errorMessage);
       console.error('Registration error:', errorMessage);
       throw err;
@@ -217,6 +222,16 @@ export const AuthProvider = ({ children }) => {
    * @param {Object} userData - New user data
    */
   const updateUser = useCallback((userData) => {
+    const newToken = userData?.token || userData?.jwt || userData?.accessToken;
+    if (newToken) {
+      setToken(newToken);
+      localStorage.setItem('token', newToken);
+    }
+
+    if (userData?.email) {
+      localStorage.setItem('userEmail', userData.email);
+    }
+
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
   }, []);

@@ -136,15 +136,33 @@ class AuthService {
         throw new Error('No token received from server');
       }
 
+      let emailFromToken = null;
+      try {
+        const payload = token.split('.')[1];
+        const normalizedPayload = payload?.replaceAll('-', '+').replaceAll('_', '/');
+        if (normalizedPayload) {
+          const decoded = atob(normalizedPayload);
+          const data = JSON.parse(decoded);
+          emailFromToken = data?.sub || data?.email || null;
+        }
+      } catch (decodeError) {
+        console.warn('[Google Login] Could not decode email from JWT payload:', decodeError);
+      }
+
       console.log('[Google Login] ✓ Token received, storing in localStorage');
       // Store JWT token
       localStorage.setItem('token', token);
 
+      if (emailFromToken) {
+        localStorage.setItem('userEmail', emailFromToken);
+      }
+
       // Store user data
-      localStorage.setItem('user', JSON.stringify(responseData));
+      const mergedUserData = emailFromToken ? { ...responseData, email: emailFromToken } : responseData;
+      localStorage.setItem('user', JSON.stringify(mergedUserData));
       console.log('[Google Login] ✓ User data stored successfully');
 
-      return responseData;
+      return mergedUserData;
     } catch (error) {
       console.error('[Google Login] ✗ Error occurred:');
       console.error('  Status:', error.response?.status);

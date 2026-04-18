@@ -40,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserModel> register(@RequestBody UserDTO userRequest) {
+    public ResponseEntity<?> register(@RequestBody UserDTO userRequest) {
         try {
             UserModel user = new UserModel();
             user.setName(userRequest.getName());
@@ -49,8 +49,12 @@ public class UserController {
             user.setRole(userRequest.getRole());
             UserModel savedUser = userService.registerUser(user);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(java.util.Map.of("message", e.getMessage()));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(java.util.Map.of("message", "Registration failed: " + e.getMessage()));
         }
     }
 

@@ -16,12 +16,17 @@ function LoginPage() {
   const { login, error, loading, clearError, setError, updateUser } = useAuth();
   const navigate = useNavigate();
 
+  const getRoleHomePath = (roleValue) => {
+    const normalizedRole = String(roleValue || '').toUpperCase();
+    return normalizedRole === 'ADMIN' ? '/home' : '/dashboard';
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     clearError();
 
     try {
-      await login(email, password);
+      const response = await login(email, password);
 
       // Optional: if user doesn't want remember-me, clear persisted token/user.
       // (Your current auth flow already stores token; this just respects the checkbox.)
@@ -29,8 +34,8 @@ function LoginPage() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       }
-      // Navigate to home on success
-      navigate('/home');
+      // Navigate by role: admin -> /home, others -> /dashboard
+      navigate(getRoleHomePath(response?.role || response?.user?.role));
     } catch (err) {
       // Error is handled by useAuth hook
       console.error('Login failed:', err);
@@ -59,8 +64,9 @@ function LoginPage() {
 
       // Small delay to ensure state updates
       setTimeout(() => {
-        console.log('[LoginPage] ✓ Navigating to /home');
-        navigate('/home');
+        const targetPath = getRoleHomePath(response?.role || response?.user?.role);
+        console.log('[LoginPage] ✓ Navigating to', targetPath);
+        navigate(targetPath);
       }, 100);
       
     } catch (e) {

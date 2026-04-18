@@ -19,6 +19,11 @@ function SignUpPage() {
   const { register, error, loading, clearError, setError } = useAuth();
   const navigate = useNavigate();
 
+  const getRoleHomePath = (roleValue) => {
+    const normalizedRole = String(roleValue || '').toUpperCase();
+    return normalizedRole === 'ADMIN' ? '/home' : '/dashboard';
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
     clearError();
@@ -30,7 +35,7 @@ function SignUpPage() {
     }
 
     try {
-      await register(name, email, password, role);
+      const response = await register(name.trim(), email.trim().toLowerCase(), password, role);
       setSuccess('Registration successful! You are now logged in.');
 
       // Reset form
@@ -42,7 +47,7 @@ function SignUpPage() {
 
       // Redirect to home after registration
       setTimeout(() => {
-        navigate('/home');
+        navigate(getRoleHomePath(response?.role || role));
       }, 1500);
     } catch (err) {
       // Error is handled by useAuth hook
@@ -50,8 +55,8 @@ function SignUpPage() {
     }
   };
 
-  const handleGoogleSuccess = () => {
-    navigate('/home');
+  const handleGoogleSuccess = (response) => {
+    navigate(getRoleHomePath(response?.role || response?.user?.role));
   };
 
   const handleGoogleError = () => {
