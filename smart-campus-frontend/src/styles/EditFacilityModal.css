@@ -1,0 +1,138 @@
+.edit-facility-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.edit-facility-modal-box {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border: 1px solid #d6dde1;
+  border-radius: 10px;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.edit-facility-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.edit-facility-modal-title {
+  margin: 0;
+  color: #1b224b;
+  font-size: 16px;
+}
+
+.edit-facility-close-btn {
+  background: transparent;
+  border: none;
+  color: #5f6b74;
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.edit-facility-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.edit-facility-grid-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.edit-facility-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.edit-facility-field label {
+  color: #5f6b74;
+  font-size: 12px;
+}
+
+.edit-facility-field input,
+.edit-facility-field select,
+.edit-facility-field textarea {
+  background: #ffffff;
+  border: 1px solid #4a5568;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #1b224b;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.edit-facility-field textarea {
+  resize: vertical;
+  min-height: 88px;
+}
+
+.edit-facility-field input::placeholder,
+.edit-facility-field textarea::placeholder {
+  color: #b2bec3;
+}
+
+.edit-facility-help {
+  margin: 2px 0 0;
+  color: #7b8790;
+  font-size: 11px;
+}
+
+.edit-facility-error {
+  margin: 0;
+  color: #e74c3c;
+  font-size: 13px;
+}
+
+.edit-facility-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.edit-facility-cancel-btn,
+.edit-facility-update-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.edit-facility-cancel-btn {
+  background: #3d4548;
+  color: #b2bec3;
+}
+
+.edit-facility-update-btn {
+  background: #f39c12;
+  color: #ffffff;
+}
+
+.edit-facility-cancel-btn:disabled,
+.edit-facility-update-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 560px) {
+  .edit-facility-grid-row {
+    grid-template-columns: 1fr;
+  }
+}
