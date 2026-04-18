@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @CrossOrigin
 @RequestMapping(value = "api/v1/bookings")
@@ -45,7 +43,7 @@ public class BookingController {
         }
     }
 
-    @GetMapping
+    @GetMapping(params = "userId")
     public ResponseEntity<?> getBookings(@RequestParam("userId") Long userId) {
         try {
             List<Booking> bookings = bookingService.getBookingsForUser(userId);

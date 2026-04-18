@@ -13,6 +13,8 @@ import BookingRequestPage from './pages/BookingRequestPage';
 import UserBookingsPage from './pages/UserBookingsPage';
 import AdminBookingPage from './pages/AdminBookingPage';
 
+const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || 'your-google-client-id-here';
+
 function BookingsLanding() {
   const { user } = useAuth();
   const role = String(user?.role || '').trim().toUpperCase();
@@ -44,7 +46,7 @@ function App() {
               path="/bookings"
               element={
                 <ProtectedRoute>
-                  <AdminDashboard />
+                  <BookingsLanding />
                 </ProtectedRoute>
               }
             />
