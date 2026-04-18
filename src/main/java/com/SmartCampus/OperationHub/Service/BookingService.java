@@ -4,6 +4,7 @@ import com.SmartCampus.OperationHub.Model.Booking;
 import com.SmartCampus.OperationHub.Repository.BookingRepository;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Locale;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -12,9 +13,11 @@ import org.springframework.util.StringUtils;
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+    private final NotificationService notificationService;
 
-    public BookingService(BookingRepository bookingRepository) {
+    public BookingService(BookingRepository bookingRepository, NotificationService notificationService) {
         this.bookingRepository = bookingRepository;
+        this.notificationService = notificationService;
     }
 
     public Booking createBooking(Booking booking) {
@@ -71,7 +74,9 @@ public class BookingService {
             }
             booking.setRejectionReason(rejectionReason.trim());
             booking.setStatus("REJECTED");
-            return bookingRepository.save(booking);
+            Booking saved = bookingRepository.save(booking);
+            notificationService.notifyBookingRejected(saved);
+            return saved;
         }
 
         // APPROVED: enforce no conflicts with other APPROVED bookings
@@ -91,7 +96,9 @@ public class BookingService {
 
         booking.setStatus("APPROVED");
         booking.setRejectionReason(null);
-        return bookingRepository.save(booking);
+        Booking saved = bookingRepository.save(booking);
+        notificationService.notifyBookingApproved(saved);
+        return saved;
     }
 
     private void validateBookingForCreate(Booking booking) {
@@ -127,6 +134,10 @@ public class BookingService {
     private String normalizeStatus(String status) {
         if (status == null) return "";
         return status.trim().toUpperCase(Locale.ROOT);
+    }
+
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
     }
 }
 

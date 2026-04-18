@@ -1,10 +1,10 @@
-import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import './App.css';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import HomePage from './pages/HomePage';
+import LandingPage from './pages/LandingPage';
+import AdminDashboard from './pages/AdminDashboard';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import FacilitiesList from './pages/FacilitiesList';
@@ -15,11 +15,12 @@ const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || 'your-google-
 
 function App() {
   return (
-    <GoogleOAuthProvider clientId="584522305897-e4imhiui27j808mdctedqalbf3bc605e.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <Router>
         <AuthProvider>
           <Routes>
             {/* Public Routes */}
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
 
@@ -28,19 +29,25 @@ function App() {
               path="/home"
               element={
                 <ProtectedRoute>
-                  <HomePage />
+                  <AdminDashboard />
                 </ProtectedRoute>
               }
             />
-
-            {/* Root redirect */}
-            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route
+              path="/home/users"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Catch-all redirect */}
             <Route path="*" element={<Navigate to="/home" replace />} />
 
             <Route path="/facilities" element={<FacilitiesList />} />
             <Route path="/facilities/:id" element={<FacilityDetail />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>
       </Router>
