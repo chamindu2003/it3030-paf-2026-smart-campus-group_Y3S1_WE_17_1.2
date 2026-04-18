@@ -8,8 +8,9 @@ import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 
-// 1. IMPORT YOUR NEW FORM HERE
+// IMPORTS
 import TicketForm from './components/TicketForm';
+import TicketList from './pages/TicketList'; // <-- 1. Import your new list component
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || 'your-google-client-id-here';
 
@@ -24,8 +25,7 @@ function App() {
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/signup" element={<SignUpPage />} />
 
-                        {/* 2. ADD THIS NEW ROUTE FOR YOUR BATTLE */}
-                        {/* We put it outside ProtectedRoute for 5 minutes just to test it easily */}
+                        {/* Test route for creating a ticket */}
                         <Route path="/report" element={<div className="container"><TicketForm /></div>} />
 
                         {/* Protected Routes */}
@@ -34,6 +34,16 @@ function App() {
                             element={
                                 <ProtectedRoute>
                                     <DashboardPage />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        {/* 2. ADD THIS: Protected route for viewing tickets */}
+                        <Route
+                            path="/tickets"
+                            element={
+                                <ProtectedRoute>
+                                    <TicketList />
                                 </ProtectedRoute>
                             }
                         />
