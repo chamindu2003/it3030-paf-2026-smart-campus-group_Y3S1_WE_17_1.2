@@ -3,7 +3,8 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import './App.css';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import HomePage from './pages/HomePage';
+import LandingPage from './pages/LandingPage';
+import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 
@@ -17,6 +18,7 @@ function App() {
         <AuthProvider>
           <Routes>
             {/* Public Routes */}
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
 
@@ -25,16 +27,13 @@ function App() {
               path="/home"
               element={
                 <ProtectedRoute>
-                  <HomePage />
+                  <DashboardPage />
                 </ProtectedRoute>
               }
             />
 
-            {/* Root redirect */}
-            <Route path="/" element={<Navigate to="/home" replace />} />
-
             {/* Catch-all redirect */}
-            <Route path="*" element={<Navigate to="/home" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>
       </Router>
