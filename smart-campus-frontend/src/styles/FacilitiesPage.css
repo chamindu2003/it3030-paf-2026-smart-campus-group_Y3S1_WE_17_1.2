@@ -1,0 +1,274 @@
+.facilities-page {
+  background: #f5f6fa;
+  min-height: 100vh;
+  padding: 32px 24px;
+}
+
+.facilities-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.facilities-header h1 {
+  margin: 0;
+  color: #1B224B;
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.facilities-header p {
+  margin: 6px 0 0;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+.facilities-search {
+  width: 280px;
+  max-width: 100%;
+  border: 1px solid #d5d9e3;
+  border-radius: 20px;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #1B224B;
+  background: #ffffff;
+  outline: none;
+}
+
+.facilities-search:focus {
+  border-color: #2C3991;
+  box-shadow: 0 0 0 3px rgba(44, 57, 145, 0.12);
+}
+
+.facilities-filter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-btn {
+  border: 1px solid #1B224B;
+  border-radius: 20px;
+  background: #ffffff;
+  color: #1B224B;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-btn.active {
+  background: #2C3991;
+  color: #ffffff;
+  border-color: #2C3991;
+}
+
+.available-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #1B224B;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 46px;
+  height: 26px;
+  display: inline-flex;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: #cfd4dc;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 3px;
+  top: 3px;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: #2C3991;
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+.facilities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.facility-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.facility-image-placeholder {
+  height: 180px;
+  background: #2C3991;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.placeholder-type-text {
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.status-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 5px 10px;
+}
+
+.status-badge.available {
+  background: #2ecc71;
+}
+
+.status-badge.unavailable {
+  background: #e74c3c;
+}
+
+.type-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #ffffff;
+  color: #1B224B;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 5px 10px;
+}
+
+.facility-card-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.facility-card-content h3 {
+  margin: 0 0 12px;
+  font-size: 18px;
+  color: #1B224B;
+  font-weight: 700;
+}
+
+.meta-row {
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.meta-icon {
+  color: #6b7280;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  display: inline-flex;
+}
+
+.meta-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.book-btn {
+  margin-top: auto;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  background: #2C3991;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.book-btn.disabled,
+.book-btn:disabled {
+  background: #B2BEC3;
+  cursor: not-allowed;
+}
+
+.facilities-state-message {
+  margin: 28px 0;
+  color: #4b5563;
+  font-weight: 600;
+}
+
+.facilities-state-message.error {
+  color: #c0392b;
+}
+
+@media (max-width: 768px) {
+  .facilities-page {
+    padding: 24px 16px;
+  }
+
+  .facilities-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .facilities-search {
+    width: 100%;
+  }
+
+  .facilities-filter-row {
+    align-items: flex-start;
+  }
+}
