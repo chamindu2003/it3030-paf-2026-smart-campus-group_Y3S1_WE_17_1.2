@@ -23,10 +23,14 @@ public class TicketService {
         return ticketRepository.findAll();
     }
 
-    // Add this inside your TicketService class
     public Ticket getTicketById(Long id) {
         return ticketRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ticket not found with id: " + id));
+    }
+
+    // Add this inside TicketService.java
+    public List<Ticket> getTicketsByAssignee(Long assigneeId) {
+        return ticketRepository.findByAssigneeId(assigneeId);
     }
 
     public Ticket updateTicketStatus(Long id, TicketStatus newStatus) {
@@ -37,7 +41,15 @@ public class TicketService {
         return ticketRepository.save(existingTicket);
     }
 
-    // This handles the file URL updating!
+    //Handles finding the ticket and updating the assigneeId
+    public Ticket assignTechnician(Long id, Long assigneeId) {
+        Ticket existingTicket = ticketRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ticket not found with id: " + id));
+
+        existingTicket.setAssigneeId(assigneeId);
+        return ticketRepository.save(existingTicket);
+    }
+
     public Ticket updateTicketAttachment(Long id, String attachmentUrl) {
         Ticket existingTicket = ticketRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ticket not found with id: " + id));

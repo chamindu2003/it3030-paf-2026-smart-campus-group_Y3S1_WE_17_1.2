@@ -44,6 +44,9 @@ public class Ticket {
     // NEW: Stores the path for a single uploaded attachment (like a PDF or general file)
     private String attachmentUrl;
 
+    // NEW: Stores the ID of the assigned Technician
+    private Long assigneeId;
+
     // One Ticket has Many Comments
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
@@ -88,7 +91,11 @@ public class Ticket {
     public String getRejectionReason() { return rejectionReason; }
     public void setRejectionReason(String rejectionReason) { this.rejectionReason = rejectionReason; }
 
-    // NEW GETTER AND SETTER FOR ATTACHMENTS
+    // GETTER AND SETTER FOR ATTACHMENTS
     public String getAttachmentUrl() { return attachmentUrl; }
     public void setAttachmentUrl(String attachmentUrl) { this.attachmentUrl = attachmentUrl; }
+
+    // NEW GETTER AND SETTER FOR ASSIGNEE
+    public Long getAssigneeId() { return assigneeId; }
+    public void setAssigneeId(Long assigneeId) { this.assigneeId = assigneeId; }
 }

@@ -20,6 +20,7 @@ import AdminBookingPage from './pages/AdminBookingPage';
 import TicketForm from './components/TicketForm';
 import TicketList from './pages/TicketList';
 import TicketDetail from './pages/TicketDetail';
+import TechnicianTasks from './pages/TechnicianTasks'; // Adjust the path based on where you saved it
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || 'your-google-client-id-here';
 
@@ -46,6 +47,7 @@ function App() {
                         <Route path="/report" element={<div className="container"><TicketForm /></div>} />
                         <Route path="/tickets" element={<ProtectedRoute><TicketList /></ProtectedRoute>} />
                         <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetail /></ProtectedRoute>} />
+                        <Route path="/my-tasks" element={<TechnicianTasks />} />
 
                         {/* Booking System Routes */}
                         <Route path="/bookings/new" element={<ProtectedRoute><BookingRequestPage /></ProtectedRoute>} />

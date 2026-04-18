@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tickets")
@@ -42,12 +43,35 @@ public class TicketController {
         return new ResponseEntity<>(ticket, HttpStatus.OK);
     }
 
+    @GetMapping("/assigned/{assigneeId}")
+    public ResponseEntity<List<Ticket>> getAssignedTickets(@PathVariable Long assigneeId) {
+        List<Ticket> tickets = ticketService.getTicketsByAssignee(assigneeId);
+        return new ResponseEntity<>(tickets, HttpStatus.OK);
+    }
+
+    // UPDATED: Now perfectly handles the JSON { "status": "IN_PROGRESS" } from React
     @PutMapping("/{id}/status")
     public ResponseEntity<Ticket> updateTicketStatus(
             @PathVariable Long id,
-            @RequestParam TicketStatus status) {
+            @RequestBody Map<String, String> payload) {
 
+        String statusStr = payload.get("status");
+        TicketStatus status = TicketStatus.valueOf(statusStr.toUpperCase());
         Ticket updatedTicket = ticketService.updateTicketStatus(id, status);
+        return new ResponseEntity<>(updatedTicket, HttpStatus.OK);
+    }
+
+    // NEW: Endpoint to handle Technician assignment from the Admin view
+    @PutMapping("/{id}/assign")
+    public ResponseEntity<Ticket> assignTechnician(
+            @PathVariable Long id,
+            @RequestBody Map<String, Long> payload) {
+
+        // Convert integer/number from JSON map to Long safely
+        Number assigneeNum = payload.get("assigneeId");
+        Long assigneeId = assigneeNum != null ? assigneeNum.longValue() : null;
+
+        Ticket updatedTicket = ticketService.assignTechnician(id, assigneeId);
         return new ResponseEntity<>(updatedTicket, HttpStatus.OK);
     }
 
