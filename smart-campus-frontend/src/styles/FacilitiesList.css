@@ -9,7 +9,9 @@
 
 .facilities-layout {
   min-height: 100vh;
-  background: #ffffff;
+  display: grid;
+  grid-template-columns: 304px minmax(0, 1fr);
+  background: radial-gradient(circle at top right, #f8f9fc 0%, #eef2f8 52%, #e8edf6 100%);
   color: #1b224b;
 }
 
@@ -17,6 +19,10 @@
   flex: 1;
   background: #ffffff;
   padding: 24px;
+  margin: 22px;
+  border: 1px solid #dde4f2;
+  border-radius: 18px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
   box-sizing: border-box;
 }
 
@@ -164,11 +170,16 @@
 }
 
 @media (max-width: 900px) {
+  .facilities-layout {
+    grid-template-columns: 1fr;
+  }
+
   .filters-row {
     grid-template-columns: 1fr;
   }
 
   .facilities-main {
     padding: 16px;
+    margin: 12px;
   }
 }
