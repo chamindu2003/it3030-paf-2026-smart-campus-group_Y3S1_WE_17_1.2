@@ -159,7 +159,11 @@ function UserDashboard() {
                   </button>
                 </li>
                 <li>
-                  <button type="button" className="userdash-sidebar-item">
+                  <button
+                    type="button"
+                    className="userdash-sidebar-item"
+                    onClick={() => navigate('/bookings')}
+                  >
                     <span className="userdash-sidebar-icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
                         <rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" strokeWidth="1.7" />
