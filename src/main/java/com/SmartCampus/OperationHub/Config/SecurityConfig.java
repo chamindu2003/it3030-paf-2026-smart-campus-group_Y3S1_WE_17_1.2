@@ -46,7 +46,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
@@ -54,14 +54,14 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // ADDED "/api/tickets/**" TO THE LIST BELOW
+                        // FIXED: Added /api/tickets/** and /uploads/** safely below the comment!
                         .requestMatchers("/api/auth/login", "/api/auth/oauth2/login", "/api/auth/google/login",
-                                "/api/v1/login", "/api/v1/register", "/api/v1/getUser", "/api/tickets/**").permitAll()
+                                "/api/v1/login", "/api/v1/register", "/api/v1/getUser",
+                                "/api/tickets/**", "/uploads/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
 }

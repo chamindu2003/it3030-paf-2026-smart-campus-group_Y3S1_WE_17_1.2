@@ -41,9 +41,10 @@ public class Ticket {
 
     private String rejectionReason; // Admin can add this if rejected
 
+    // NEW: Stores the path for a single uploaded attachment (like a PDF or general file)
+    private String attachmentUrl;
+
     // --- GETTERS AND SETTERS ---
-    // (You can use Lombok's @Data annotation if your team uses it,
-    // otherwise we generate them manually like this)
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -74,4 +75,8 @@ public class Ticket {
 
     public String getRejectionReason() { return rejectionReason; }
     public void setRejectionReason(String rejectionReason) { this.rejectionReason = rejectionReason; }
+
+    // NEW GETTER AND SETTER FOR ATTACHMENTS
+    public String getAttachmentUrl() { return attachmentUrl; }
+    public void setAttachmentUrl(String attachmentUrl) { this.attachmentUrl = attachmentUrl; }
 }
