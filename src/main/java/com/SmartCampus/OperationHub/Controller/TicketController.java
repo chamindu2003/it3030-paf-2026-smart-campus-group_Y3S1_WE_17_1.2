@@ -36,6 +36,12 @@ public class TicketController {
         return new ResponseEntity<>(tickets, HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Ticket> getTicketById(@PathVariable Long id) {
+        Ticket ticket = ticketService.getTicketById(id);
+        return new ResponseEntity<>(ticket, HttpStatus.OK);
+    }
+
     @PutMapping("/{id}/status")
     public ResponseEntity<Ticket> updateTicketStatus(
             @PathVariable Long id,

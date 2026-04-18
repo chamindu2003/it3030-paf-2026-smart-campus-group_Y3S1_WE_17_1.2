@@ -44,6 +44,18 @@ public class Ticket {
     // NEW: Stores the path for a single uploaded attachment (like a PDF or general file)
     private String attachmentUrl;
 
+    // One Ticket has Many Comments
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
     // --- GETTERS AND SETTERS ---
 
     public Long getId() { return id; }

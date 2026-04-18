@@ -10,7 +10,8 @@ import SignUpPage from './pages/SignUpPage';
 
 // IMPORTS
 import TicketForm from './components/TicketForm';
-import TicketList from './pages/TicketList'; // <-- 1. Import your new list component
+import TicketList from './pages/TicketList';
+import TicketDetail from './pages/TicketDetail'; // <-- 1. Import your new Detail component
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || 'your-google-client-id-here';
 
@@ -38,12 +39,22 @@ function App() {
                             }
                         />
 
-                        {/* 2. ADD THIS: Protected route for viewing tickets */}
+                        {/* Protected route for viewing all tickets */}
                         <Route
                             path="/tickets"
                             element={
                                 <ProtectedRoute>
                                     <TicketList />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        {/* 2. ADDED THIS: Protected route for viewing a single ticket's details & comments */}
+                        <Route
+                            path="/tickets/:id"
+                            element={
+                                <ProtectedRoute>
+                                    <TicketDetail />
                                 </ProtectedRoute>
                             }
                         />

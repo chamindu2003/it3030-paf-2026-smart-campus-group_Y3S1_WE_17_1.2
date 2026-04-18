@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    // Spring Boot is so smart that just by naming this method correctly,
-    // it will automatically write the SQL query to fetch comments by their ticket ID!
+    // Spring Boot will automatically write the SQL query to fetch comments
+    // based on the ID of the associated Ticket entity!
     List<Comment> findByTicketId(Long ticketId);
 }

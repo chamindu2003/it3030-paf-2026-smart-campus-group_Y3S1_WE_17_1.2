@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ticketService } from '../ticketService'; // Adjust path if needed
+import { Link } from 'react-router-dom'; // 1. IMPORT LINK HERE
+import { ticketService } from '../ticketService';
 
-const DashboardPage = () => {
+const TicketList = () => {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -24,7 +25,7 @@ const DashboardPage = () => {
 
     return (
         <div style={{ padding: '20px' }}>
-            <h2>Active Tickets Dashboard</h2>
+            <h2>Active Tickets</h2>
 
             {tickets.length === 0 ? (
                 <p>No tickets found. You are all caught up!</p>
@@ -35,7 +36,8 @@ const DashboardPage = () => {
                         <th style={{ padding: '10px', border: '1px solid #ddd' }}>ID</th>
                         <th style={{ padding: '10px', border: '1px solid #ddd' }}>Description</th>
                         <th style={{ padding: '10px', border: '1px solid #ddd' }}>Status</th>
-                        <th style={{ padding: '10px', border: '1px solid #ddd' }}>Attachment</th>
+                        {/* 2. ADD AN ACTIONS COLUMN */}
+                        <th style={{ padding: '10px', border: '1px solid #ddd' }}>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -46,14 +48,20 @@ const DashboardPage = () => {
                             <td style={{ padding: '10px', border: '1px solid #ddd', fontWeight: 'bold' }}>
                                 {ticket.status}
                             </td>
+                            {/* 3. ADD THE BUTTON LINK TO THE DETAIL PAGE */}
                             <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                                {ticket.attachmentUrl ? (
-                                    <a href={`http://localhost:8081/uploads/${ticket.attachmentUrl}`} target="_blank" rel="noreferrer">
-                                        View File
-                                    </a>
-                                ) : (
-                                    "No File"
-                                )}
+                                <Link
+                                    to={`/tickets/${ticket.id}`}
+                                    style={{
+                                        padding: '5px 10px',
+                                        backgroundColor: '#007bff',
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        borderRadius: '4px'
+                                    }}
+                                >
+                                    View Details
+                                </Link>
                             </td>
                         </tr>
                     ))}
@@ -64,4 +72,4 @@ const DashboardPage = () => {
     );
 };
 
-export default DashboardPage;
+export default TicketList;

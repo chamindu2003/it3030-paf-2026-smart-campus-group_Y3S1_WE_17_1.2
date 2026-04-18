@@ -16,5 +16,21 @@ export const ticketService = {
         return axios.post(`${API_URL}/${ticketId}/upload`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
-    } // <-- Closes the uploadTicketFile function
-}; // <-- Closes the ticketService object (This was missing!)
+    }, // <-- I ADDED THE MISSING COMMA RIGHT HERE!
+
+    // 4. Fetch a single ticket by its ID
+    getTicketById: (id) => {
+        return axios.get(`${API_URL}/${id}`);
+    },
+
+    // 5. Fetch all comments for a specific ticket
+    getComments: (ticketId) => {
+        return axios.get(`${API_URL}/${ticketId}/comments`);
+    },
+
+    // 6. Post a new comment to a specific ticket
+    addComment: (ticketId, commentData) => {
+        return axios.post(`${API_URL}/${ticketId}/comments`, commentData);
+    }
+
+};

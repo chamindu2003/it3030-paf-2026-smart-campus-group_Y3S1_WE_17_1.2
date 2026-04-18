@@ -23,6 +23,12 @@ public class TicketService {
         return ticketRepository.findAll();
     }
 
+    // Add this inside your TicketService class
+    public Ticket getTicketById(Long id) {
+        return ticketRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ticket not found with id: " + id));
+    }
+
     public Ticket updateTicketStatus(Long id, TicketStatus newStatus) {
         Ticket existingTicket = ticketRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ticket not found with id: " + id));
