@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // 1. IMPORT LINK HERE
+import { Link } from 'react-router-dom';
 import { ticketService } from '../ticketService';
+import '../styles/TicketPages.css';
 
 const TicketList = () => {
     const [tickets, setTickets] = useState([]);
@@ -21,53 +22,43 @@ const TicketList = () => {
         }
     };
 
-    if (loading) return <div>Loading tickets...</div>;
+    if (loading) return <div className="ticket-loading-state">Loading tickets...</div>;
 
     return (
-        <div style={{ padding: '20px' }}>
-            <h2>Active Tickets</h2>
-
-            {tickets.length === 0 ? (
-                <p>No tickets found. You are all caught up!</p>
-            ) : (
-                <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-                    <thead>
-                    <tr style={{ backgroundColor: '#f4f4f4', textAlign: 'left' }}>
-                        <th style={{ padding: '10px', border: '1px solid #ddd' }}>ID</th>
-                        <th style={{ padding: '10px', border: '1px solid #ddd' }}>Description</th>
-                        <th style={{ padding: '10px', border: '1px solid #ddd' }}>Status</th>
-                        {/* 2. ADD AN ACTIONS COLUMN */}
-                        <th style={{ padding: '10px', border: '1px solid #ddd' }}>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {tickets.map((ticket) => (
-                        <tr key={ticket.id}>
-                            <td style={{ padding: '10px', border: '1px solid #ddd' }}>{ticket.id}</td>
-                            <td style={{ padding: '10px', border: '1px solid #ddd' }}>{ticket.description}</td>
-                            <td style={{ padding: '10px', border: '1px solid #ddd', fontWeight: 'bold' }}>
-                                {ticket.status}
-                            </td>
-                            {/* 3. ADD THE BUTTON LINK TO THE DETAIL PAGE */}
-                            <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                                <Link
-                                    to={`/tickets/${ticket.id}`}
-                                    style={{
-                                        padding: '5px 10px',
-                                        backgroundColor: '#007bff',
-                                        color: 'white',
-                                        textDecoration: 'none',
-                                        borderRadius: '4px'
-                                    }}
-                                >
-                                    View Details
-                                </Link>
-                            </td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
-            )}
+        <div className="ticket-page-wrapper">
+            <div className="ticket-card ticket-list-card">
+                <h2 className="ticket-page-title">Active Tickets</h2>
+                {tickets.length === 0 ? (
+                    <div className="ticket-empty-state">No tickets found. You are all caught up!</div>
+                ) : (
+                    <table className="ticket-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {tickets.map((ticket) => (
+                                <tr key={ticket.id}>
+                                    <td>{ticket.id}</td>
+                                    <td>{ticket.description}</td>
+                                    <td>
+                                        <span className={`ticket-status-pill ticket-status-${String(ticket.status).toLowerCase().replace(/\s+/g, '-')}`}>{ticket.status}</span>
+                                    </td>
+                                    <td>
+                                        <Link to={`/tickets/${ticket.id}`} className="ticket-button ticket-button-secondary">
+                                            View Details
+                                        </Link>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+            </div>
         </div>
     );
 };
