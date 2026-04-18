@@ -1,20 +1,63 @@
 import { useNavigate } from 'react-router-dom';
 import BookingRequestForm from '../components/BookingRequestForm';
+import UserPortalSidebar from '../components/UserPortalSidebar';
+import { useAuth } from '../hooks/useAuth';
+import '../styles/userdashboard.css';
 
 function BookingRequestPage() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const signedInEmail = user?.email || localStorage.getItem('userEmail') || 'user@example.com';
+  const displayName = user?.name || signedInEmail.split('@')[0] || 'User';
+  const userInitials = displayName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('');
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-card">
-        <div className="dashboard-header">
-          <h1>Create Booking</h1>
-          <button className="logout-btn" onClick={() => navigate('/bookings')}>
-            Back
-          </button>
-        </div>
+    <div className="userdash-page">
+      <div className="userdash-layout">
+        <UserPortalSidebar
+          activeItem="bookings"
+          displayName={displayName}
+          email={signedInEmail}
+          profilePicture={user?.profilePicture}
+          userInitials={userInitials}
+        />
 
-        <BookingRequestForm />
+        <main className="userdash-shell">
+          <header className="userdash-header">
+            <div>
+              <p className="userdash-eyebrow">Smart Campus</p>
+              <h1>Create Booking</h1>
+              <p className="userdash-subtitle">Submit a new booking request</p>
+            </div>
+
+            <div className="userdash-actions">
+              <button type="button" className="userdash-refresh-btn" onClick={() => navigate('/bookings')}>
+                My Bookings
+              </button>
+              <button type="button" className="userdash-refresh-btn" onClick={() => navigate('/user/facilities')}>
+                Facilities
+              </button>
+              <button type="button" className="userdash-logout-btn" onClick={handleLogout}>
+                Logout
+              </button>
+            </div>
+          </header>
+
+          <section className="userdash-panel" style={{ maxWidth: '980px' }}>
+            <BookingRequestForm />
+          </section>
+        </main>
       </div>
     </div>
   );

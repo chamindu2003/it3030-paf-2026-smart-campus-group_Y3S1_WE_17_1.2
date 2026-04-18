@@ -4,7 +4,6 @@ import com.SmartCampus.OperationHub.DTO.CancelBookingRequest;
 import com.SmartCampus.OperationHub.DTO.UpdateBookingStatusRequest;
 import com.SmartCampus.OperationHub.Model.Booking;
 import com.SmartCampus.OperationHub.Service.BookingService;
-import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @CrossOrigin
 @RequestMapping(value = "api/v1/bookings")
@@ -28,7 +29,7 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<Booking>> getAllBookings() {
         return ResponseEntity.ok(bookingService.getAllBookings());
     }
@@ -43,7 +44,7 @@ public class BookingController {
         }
     }
 
-    @GetMapping(params = "userId")
+    @GetMapping
     public ResponseEntity<?> getBookings(@RequestParam("userId") Long userId) {
         try {
             List<Booking> bookings = bookingService.getBookingsForUser(userId);
