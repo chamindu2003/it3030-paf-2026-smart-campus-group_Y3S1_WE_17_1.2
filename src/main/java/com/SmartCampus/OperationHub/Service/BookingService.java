@@ -4,6 +4,7 @@ import com.SmartCampus.OperationHub.Model.Booking;
 import com.SmartCampus.OperationHub.Repository.BookingRepository;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Locale;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -12,9 +13,11 @@ import org.springframework.util.StringUtils;
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+    private final NotificationService notificationService;
 
-    public BookingService(BookingRepository bookingRepository) {
+    public BookingService(BookingRepository bookingRepository, NotificationService notificationService) {
         this.bookingRepository = bookingRepository;
+        this.notificationService = notificationService;
     }
 
     public Booking createBooking(Booking booking) {
@@ -71,7 +74,9 @@ public class BookingService {
             }
             booking.setRejectionReason(rejectionReason.trim());
             booking.setStatus("REJECTED");
-            return bookingRepository.save(booking);
+            Booking saved = bookingRepository.save(booking);
+            notificationService.notifyBookingRejected(saved);
+            return saved;
         }
 
         // APPROVED: enforce no conflicts with other APPROVED bookings
@@ -90,6 +95,57 @@ public class BookingService {
         }
 
         booking.setStatus("APPROVED");
+        booking.setRejectionReason(null);
+        Booking saved = bookingRepository.save(booking);
+        notificationService.notifyBookingApproved(saved);
+        return saved;
+    }
+
+    public List<Booking> getBookingsForUser(Long userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId is required");
+        }
+        return bookingRepository.findByUserIdOrderByBookingDateDescStartTimeDesc(userId);
+    }
+
+    /**
+     * Admin dashboard query.
+     */
+    public List<Booking> searchBookingsForAdmin(Long userId, Long resourceId, String status, String actingRole) {
+        if (!isAdmin(actingRole)) {
+            throw new SecurityException("Only admins can view all bookings");
+        }
+        return bookingRepository.searchBookings(userId, resourceId, status);
+    }
+
+    /**
+     * User cancellation.
+     *
+     * Allowed transitions:
+     * - PENDING -> CANCELLED
+     * - APPROVED -> CANCELLED
+     */
+    public Booking cancelBooking(Long bookingId, Long userId) {
+        if (bookingId == null) {
+            throw new IllegalArgumentException("bookingId is required");
+        }
+        if (userId == null) {
+            throw new IllegalArgumentException("userId is required");
+        }
+
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+
+        if (!userId.equals(booking.getUserId())) {
+            throw new SecurityException("You can only cancel your own bookings");
+        }
+
+        String currentStatus = normalizeStatus(booking.getStatus());
+        if (!"PENDING".equals(currentStatus) && !"APPROVED".equals(currentStatus)) {
+            throw new IllegalStateException("Only PENDING or APPROVED bookings can be cancelled");
+        }
+
+        booking.setStatus("CANCELLED");
         booking.setRejectionReason(null);
         return bookingRepository.save(booking);
     }
@@ -127,6 +183,10 @@ public class BookingService {
     private String normalizeStatus(String status) {
         if (status == null) return "";
         return status.trim().toUpperCase(Locale.ROOT);
+    }
+
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
     }
 }
 

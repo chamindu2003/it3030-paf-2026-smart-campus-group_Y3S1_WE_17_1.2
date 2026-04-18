@@ -4,16 +4,30 @@ import './App.css';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
-import DashboardPage from './pages/DashboardPage';
+import AdminDashboard from './pages/AdminDashboard';
+import UserDashboard from './pages/UserDashboard';
+import { useAuth } from './hooks/useAuth';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
+import FacilitiesList from './pages/FacilitiesList';
+import FacilityDetail from './pages/FacilityDetail';
+import FacilitiesPage from './pages/FacilitiesPage';
+import BookingRequestPage from './pages/BookingRequestPage';
+import UserBookingsPage from './pages/UserBookingsPage';
+import AdminBookingPage from './pages/AdminBookingPage';
 
-// IMPORTS
+// TICKET SYSTEM IMPORTS
 import TicketForm from './components/TicketForm';
 import TicketList from './pages/TicketList';
-import TicketDetail from './pages/TicketDetail'; // <-- 1. Import your new Detail component
+import TicketDetail from './components/TicketDetail'; 
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || 'your-google-client-id-here';
+
+function BookingsLanding() {
+  const { user } = useAuth();
+  const role = String(user?.role || '').trim().toUpperCase();
+  return role === 'ADMIN' ? <AdminBookingPage /> : <UserBookingsPage />;
+}
 
 function App() {
     return (
@@ -25,39 +39,23 @@ function App() {
                         <Route path="/" element={<LandingPage />} />
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/signup" element={<SignUpPage />} />
+                        <Route path="/facilities" element={<FacilitiesList />} />
+                        <Route path="/facilities/:id" element={<FacilityDetail />} />
 
-                        {/* Test route for creating a ticket */}
+                        {/* Ticket System Routes */}
                         <Route path="/report" element={<div className="container"><TicketForm /></div>} />
+                        <Route path="/tickets" element={<ProtectedRoute><TicketList /></ProtectedRoute>} />
+                        <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetail /></ProtectedRoute>} />
 
-                        {/* Protected Routes */}
-                        <Route
-                            path="/home"
-                            element={
-                                <ProtectedRoute>
-                                    <DashboardPage />
-                                </ProtectedRoute>
-                            }
-                        />
+                        {/* Booking System Routes */}
+                        <Route path="/bookings/new" element={<ProtectedRoute><BookingRequestPage /></ProtectedRoute>} />
+                        <Route path="/bookings" element={<ProtectedRoute><BookingsLanding /></ProtectedRoute>} />
+                        <Route path="/user/facilities" element={<ProtectedRoute><FacilitiesPage /></ProtectedRoute>} />
 
-                        {/* Protected route for viewing all tickets */}
-                        <Route
-                            path="/tickets"
-                            element={
-                                <ProtectedRoute>
-                                    <TicketList />
-                                </ProtectedRoute>
-                            }
-                        />
-
-                        {/* 2. ADDED THIS: Protected route for viewing a single ticket's details & comments */}
-                        <Route
-                            path="/tickets/:id"
-                            element={
-                                <ProtectedRoute>
-                                    <TicketDetail />
-                                </ProtectedRoute>
-                            }
-                        />
+                        {/* Dashboard Routes */}
+                        <Route path="/home" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                        <Route path="/home/users" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                        <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
 
                         {/* Catch-all redirect */}
                         <Route path="*" element={<Navigate to="/" replace />} />

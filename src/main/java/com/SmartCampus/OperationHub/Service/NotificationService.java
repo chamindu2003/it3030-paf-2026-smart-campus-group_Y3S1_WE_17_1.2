@@ -2,6 +2,8 @@ package com.SmartCampus.OperationHub.Service;
 
 import com.SmartCampus.OperationHub.DTO.CreateNotificationRequest;
 import com.SmartCampus.OperationHub.DTO.NotificationDTO;
+import com.SmartCampus.OperationHub.Enums.NotificationType;
+import com.SmartCampus.OperationHub.Model.Booking;
 import com.SmartCampus.OperationHub.Model.Notification;
 import com.SmartCampus.OperationHub.Repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,54 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NotificationService {
     private final NotificationRepository notificationRepository;
+
+    @Transactional
+    public NotificationDTO notifyBookingApproved(Booking booking) {
+    return createNotification(CreateNotificationRequest.builder()
+        .recipientId(booking.getUserId())
+        .type(NotificationType.BOOKING_APPROVED)
+        .message("Booking #" + booking.getId() + " has been approved.")
+        .referenceId(booking.getId())
+        .build());
+    }
+
+    @Transactional
+    public NotificationDTO notifyBookingRejected(Booking booking) {
+    String reason = booking.getRejectionReason() == null || booking.getRejectionReason().isBlank()
+        ? "No reason provided"
+        : booking.getRejectionReason().trim();
+
+    return createNotification(CreateNotificationRequest.builder()
+        .recipientId(booking.getUserId())
+        .type(NotificationType.BOOKING_REJECTED)
+        .message("Booking #" + booking.getId() + " was rejected. Reason: " + reason)
+        .referenceId(booking.getId())
+        .build());
+    }
+
+    @Transactional
+    public NotificationDTO notifyTicketStatusChanged(Long recipientId, Long ticketId, String newStatus) {
+    return createNotification(CreateNotificationRequest.builder()
+        .recipientId(recipientId)
+        .type(NotificationType.TICKET_STATUS_CHANGED)
+        .message("Ticket #" + ticketId + " status changed to " + newStatus + ".")
+        .referenceId(ticketId)
+        .build());
+    }
+
+    @Transactional
+    public NotificationDTO notifyTicketComment(Long recipientId, Long ticketId, String commenterName) {
+    String commenter = (commenterName == null || commenterName.isBlank())
+        ? "A team member"
+        : commenterName.trim();
+
+    return createNotification(CreateNotificationRequest.builder()
+        .recipientId(recipientId)
+        .type(NotificationType.NEW_COMMENT)
+        .message(commenter + " commented on ticket #" + ticketId + ".")
+        .referenceId(ticketId)
+        .build());
+    }
 
     @Transactional
     public NotificationDTO createNotification(CreateNotificationRequest request) {

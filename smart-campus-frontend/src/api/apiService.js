@@ -126,9 +126,76 @@ export const userAPI = {
   },
 };
 
+/**
+ * Booking API Endpoints
+ */
+export const bookingAPI = {
+  /**
+   * Get all bookings (Protected)
+   * @returns {Promise<Array>} - List of bookings
+   */
+  getAll: async () => {
+    const response = await axiosInstance.get('/v1/bookings');
+    return response.data;
+  },
+};
+
+/**
+ * Notification API Endpoints
+ */
+export const notificationAPI = {
+  /**
+   * Get all notifications for current authenticated user
+   * @returns {Promise<Array>} - List of notifications
+   */
+  getAll: async () => {
+    const response = await axiosInstance.get('/v1/notifications');
+    return response.data;
+  },
+
+  /**
+   * Get unread notification count
+   * @returns {Promise<Object>} - { unreadCount: number }
+   */
+  getUnreadCount: async () => {
+    const response = await axiosInstance.get('/v1/notifications/unread-count');
+    return response.data;
+  },
+
+  /**
+   * Mark one notification as read
+   * @param {string} id - Notification UUID
+   * @returns {Promise<Object>} - Updated notification
+   */
+  markAsRead: async (id) => {
+    const response = await axiosInstance.patch(`/v1/notifications/${id}/read`);
+    return response.data;
+  },
+
+  /**
+   * Mark all notifications as read
+   * @returns {Promise<Object>} - { markedRead: number }
+   */
+  markAllAsRead: async () => {
+    const response = await axiosInstance.patch('/v1/notifications/read-all');
+    return response.data;
+  },
+
+  /**
+   * Delete one notification
+   * @param {string} id - Notification UUID
+   * @returns {Promise<void>}
+   */
+  deleteOne: async (id) => {
+    await axiosInstance.delete(`/v1/notifications/${id}`);
+  },
+};
+
 const apiService = {
   auth: authAPI,
   user: userAPI,
+  booking: bookingAPI,
+  notification: notificationAPI,
 };
 
 export default apiService;

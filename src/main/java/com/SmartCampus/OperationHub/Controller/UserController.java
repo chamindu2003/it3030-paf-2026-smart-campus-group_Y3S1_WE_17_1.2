@@ -8,6 +8,8 @@ import com.SmartCampus.OperationHub.Service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -38,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserModel> register(@RequestBody UserDTO userRequest) {
+    public ResponseEntity<?> register(@RequestBody UserDTO userRequest) {
         try {
             UserModel user = new UserModel();
             user.setName(userRequest.getName());
@@ -47,8 +49,12 @@ public class UserController {
             user.setRole(userRequest.getRole());
             UserModel savedUser = userService.registerUser(user);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(java.util.Map.of("message", e.getMessage()));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(java.util.Map.of("message", "Registration failed: " + e.getMessage()));
         }
     }
 
@@ -57,5 +63,32 @@ public class UserController {
         Optional<UserModel> user = userService.getUserByEmail(email);
         return user.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<UserModel>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @PutMapping("/user/{email}")
+    public ResponseEntity<UserModel> updateUserByEmail(@PathVariable String email, @RequestBody UserModel updateRequest) {
+        try {
+            UserModel updatedUser = userService.updateUserByEmail(email, updateRequest);
+            return ResponseEntity.ok(updatedUser);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @DeleteMapping("/user/{email}")
+    public ResponseEntity<Void> deleteUserByEmail(@PathVariable String email) {
+        try {
+            userService.deleteUserByEmail(email);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 }
