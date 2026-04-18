@@ -17,6 +17,8 @@ import java.util.Optional;
 @Service
 public class OAuth2Service {
 
+    private static final String GOOGLE_PROVIDER = "google";
+
     private final UserRepo userRepository;
     private final JwtUtil jwtUtil;
     private final GoogleTokenVerifier googleTokenVerifier;
@@ -45,6 +47,14 @@ public class OAuth2Service {
             String name = (String) userInfo.get("name");
             String providerId = (String) userInfo.get("sub");
             String picture = (String) userInfo.get("picture");
+            
+            // Validate required fields
+            if (email == null || email.isEmpty()) {
+                throw new IllegalStateException("Email not provided in Google token");
+            }
+            if (providerId == null || providerId.isEmpty()) {
+                throw new IllegalStateException("Google ID (sub) not provided in token");
+            }
 
             // Check if user exists
             Optional<UserModel> existingUser = userRepository.findByEmail(email);
@@ -53,18 +63,18 @@ public class OAuth2Service {
             if (existingUser.isPresent()) {
                 user = existingUser.get();
                 // Update user info if needed
-                user.setName(name);
-                user.setProvider("google");
+                if (name != null) user.setName(name);
+                user.setProvider(GOOGLE_PROVIDER);
                 user.setProviderId(providerId);
-                user.setProfilePicture(picture);
+                if (picture != null) user.setProfilePicture(picture);
             } else {
                 // Create new user
                 user = new UserModel();
-                user.setName(name);
+                user.setName(name != null ? name : email.split("@")[0]);
                 user.setEmail(email);
-                user.setProvider("google");
+                user.setProvider(GOOGLE_PROVIDER);
                 user.setProviderId(providerId);
-                user.setProfilePicture(picture);
+                if (picture != null) user.setProfilePicture(picture);
                 user.setRole("USER");
                 // Generate a random password for OAuth users (they won't use it)
                 user.setPassword(passwordEncoder.encode(java.util.UUID.randomUUID().toString()));
@@ -78,8 +88,12 @@ public class OAuth2Service {
 
             return new AuthResponse(token, user.getRole());
 
+        } catch (IllegalStateException e) {
+            throw e;
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid Google token: " + e.getMessage());
+            throw new IllegalStateException("Invalid Google token: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new IllegalStateException("Google authentication failed: " + e.getMessage(), e);
         }
     }
 
@@ -90,7 +104,7 @@ public class OAuth2Service {
      * @return AuthResponse with JWT token
      */
     public AuthResponse loginWithProvider(String provider, String idToken) {
-        if ("google".equalsIgnoreCase(provider)) {
+        if (GOOGLE_PROVIDER.equalsIgnoreCase(provider)) {
             return loginWithGoogle(idToken);
         } else {
             throw new IllegalArgumentException("Unsupported OAuth provider: " + provider);

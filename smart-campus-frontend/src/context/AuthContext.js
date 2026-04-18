@@ -1,5 +1,7 @@
-import React, { createContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useState, useCallback, useEffect, useMemo } from 'react';
+import PropTypes from 'prop-types';
 import authService from '../api/authService';
+import axiosInstance from '../api/axiosInstance';
 
 /**
  * AuthContext
@@ -113,7 +115,12 @@ export const AuthProvider = ({ children }) => {
 
       return response;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message || 'Registration failed';
+      const backendData = err.response?.data;
+      const errorMessage =
+        backendData?.message ||
+        (typeof backendData === 'string' ? backendData : null) ||
+        err.message ||
+        'Registration failed';
       setError(errorMessage);
       console.error('Registration error:', errorMessage);
       throw err;
@@ -126,20 +133,64 @@ export const AuthProvider = ({ children }) => {
    * Logout user and clear session
    */
   const logout = useCallback(() => {
+    console.log('[AuthContext] Logout initiated');
+    
+    // Clear state
     setUser(null);
     setToken(null);
     setError(null);
+    setLoading(false);
 
-    // Clear localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('userEmail');
+    // List of specific auth-related keys to clear
+    const authKeys = ['token', 'user', 'userEmail', 'googleToken', 'gToken', 'currentUser', 'fullName', 'role', 'studentId'];
+    authKeys.forEach(item => {
+      if (localStorage.getItem(item)) {
+        localStorage.removeItem(item);
+        console.log('[AuthContext] Cleared localStorage:', item);
+      }
+    });
 
-    // Call logout from authService if needed
+    // Get all keys first (to avoid iterator issues), then remove them
+    const allKeys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      allKeys.push(localStorage.key(i));
+    }
+
+    // Clear any remaining auth-related items (wildcard matching)
+    allKeys.forEach(key => {
+      if (key && (key.includes('google') || key.includes('auth') || key.includes('user') || key.includes('token') || key.includes('playnow') || key.includes('role') || key.includes('id'))) {
+        localStorage.removeItem(key);
+        console.log('[AuthContext] Cleared localStorage (wildcard):', key);
+      }
+    });
+
+    // Call logout from authService to clear any cached credentials
     try {
       authService.logout();
+      console.log('[AuthContext] AuthService logout called');
     } catch (err) {
-      console.error('Logout error:', err);
+      console.error('[AuthContext] Logout error:', err);
+    }
+
+    // Clear axios headers
+    delete axiosInstance.defaults.headers.common['Authorization'];
+    console.log('[AuthContext] Axios Authorization header cleared');
+
+    // Also clear sessionStorage for Google caching
+    sessionStorage.clear();
+    console.log('[AuthContext] SessionStorage cleared');
+
+    // Verify localStorage is empty (debugging)
+    console.log('[AuthContext] Remaining localStorage items after cleanup:');
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      console.log('  - ' + key + ':', localStorage.getItem(key)?.substring(0, 50) + '...');
+    }
+    
+    if (localStorage.length === 0) {
+      console.log('[AuthContext] ✓ localStorage is completely empty');
+    } else {
+      console.warn('[AuthContext] ⚠ WARNING: localStorage still has', localStorage.length, 'items');
     }
   }, []);
 
@@ -171,6 +222,16 @@ export const AuthProvider = ({ children }) => {
    * @param {Object} userData - New user data
    */
   const updateUser = useCallback((userData) => {
+    const newToken = userData?.token || userData?.jwt || userData?.accessToken;
+    if (newToken) {
+      setToken(newToken);
+      localStorage.setItem('token', newToken);
+    }
+
+    if (userData?.email) {
+      localStorage.setItem('userEmail', userData.email);
+    }
+
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
   }, []);
@@ -178,7 +239,7 @@ export const AuthProvider = ({ children }) => {
   /**
    * Context value
    */
-  const value = {
+  const value = useMemo(() => ({
     // State
     user,
     token,
@@ -194,9 +255,13 @@ export const AuthProvider = ({ children }) => {
     clearError,
     setError: setErrorMessage,
     updateUser,
-  };
+  }), [user, token, loading, error, isLoggedIn, login, register, logout, clearError, setErrorMessage, updateUser]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export default AuthContext;

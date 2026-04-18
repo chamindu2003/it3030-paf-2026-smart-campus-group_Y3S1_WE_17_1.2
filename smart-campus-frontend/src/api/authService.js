@@ -15,22 +15,33 @@ class AuthService {
    */
   async login(email, password) {
     try {
+      console.log('[Email Login] Starting login for:', email);
       const response = await axiosInstance.post('/auth/login', { email, password });
       const responseData = response.data;
+      console.log('[Email Login] ✓ Response received:', response.status);
+      console.log('[Email Login] Response data:', responseData);
+      
       const token = responseData?.token || responseData?.jwt || responseData?.accessToken;
 
       // Store JWT token if present in the login response
       if (token) {
+        console.log('[Email Login] ✓ Token found, storing in localStorage');
         localStorage.setItem('token', token);
+      } else {
+        console.warn('[Email Login] ⚠ Warning: No token in response');
       }
 
       // Preserve existing session metadata behavior
       localStorage.setItem('user', JSON.stringify(responseData));
       localStorage.setItem('userEmail', email);
+      console.log('[Email Login] ✓ User data stored successfully');
 
       return responseData;
     } catch (error) {
-      console.error('Login failed:', error.response?.data || error.message);
+      console.error('[Email Login] ✗ Login failed');
+      console.error('  - Status:', error.response?.status);
+      console.error('  - Message:', error.response?.data?.message || error.message);
+      console.error('  - Full error:', error.response?.data || error.message);
       throw error;
     }
   }
@@ -57,7 +68,41 @@ class AuthService {
    * Logout user and clear session
    */
   logout() {
+    console.log('[authService] Clearing all authentication data');
+    
+    // Clear all auth-related localStorage
+    const authKeys = ['token', 'user', 'userEmail', 'googleToken', 'gToken', 'currentUser', 'fullName', 'role', 'studentId'];
+    authKeys.forEach(item => {
+      if (localStorage.getItem(item)) {
+        localStorage.removeItem(item);
+        console.log('[authService] Cleared:', item);
+      }
+    });
+
+    // Get all keys first (to avoid iterator issues), then remove them
+    const allKeys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      allKeys.push(localStorage.key(i));
+    }
+
+    // Clear any remaining auth-related items (wildcard matching)
+    allKeys.forEach(key => {
+      if (key && (key.includes('google') || key.includes('auth') || key.includes('user') || key.includes('token') || key.includes('playnow') || key.includes('role') || key.includes('id'))) {
+        localStorage.removeItem(key);
+        console.log('[authService] Cleared (wildcard):', key);
+      }
+    });
+
+    // Clear sessionStorage
+    sessionStorage.clear();
+    console.log('[authService] SessionStorage cleared');
+    
+    // Call authAPI logout
     authAPI.logout();
+    console.log('[authService] Auth data cleared');
+
+    // Verify localStorage is empty
+    console.log('[authService] Remaining localStorage after cleanup:', localStorage.length, 'items');
   }
 
   /**
@@ -67,55 +112,80 @@ class AuthService {
    */
   async loginWithGoogle(idToken) {
     try {
-      console.log('Starting Google login with token length:', idToken?.length);
+      console.log('[Google Login] Starting with token length:', idToken?.length);
 
       if (!idToken) {
-        throw new Error('No ID token provided');
+        throw new Error('No ID token provided to loginWithGoogle');
       }
 
-      console.log('Calling backend /auth/google/login endpoint...');
+      console.log('[Google Login] Sending request to /auth/google/login');
       const response = await axiosInstance.post('/auth/google/login', {
         idToken,
         provider: 'google'
       });
 
-      console.log('Backend response received:', response.status);
+      console.log('[Google Login] ✓ Response received:', response.status);
       const responseData = response.data;
+      console.log('[Google Login] Response data:', responseData);
+      
       const token = responseData?.token || responseData?.jwt || responseData?.accessToken;
 
       // Validate token
       if (!token) {
+        console.error('[Google Login] ✗ No token in response');
         throw new Error('No token received from server');
       }
 
-      console.log('Token received, storing in localStorage...');
+      let emailFromToken = null;
+      try {
+        const payload = token.split('.')[1];
+        const normalizedPayload = payload?.replaceAll('-', '+').replaceAll('_', '/');
+        if (normalizedPayload) {
+          const decoded = atob(normalizedPayload);
+          const data = JSON.parse(decoded);
+          emailFromToken = data?.sub || data?.email || null;
+        }
+      } catch (decodeError) {
+        console.warn('[Google Login] Could not decode email from JWT payload:', decodeError);
+      }
+
+      console.log('[Google Login] ✓ Token received, storing in localStorage');
       // Store JWT token
       localStorage.setItem('token', token);
 
-      // Store user data
-      localStorage.setItem('user', JSON.stringify(responseData));
-      console.log('Google login successful, user stored');
+      if (emailFromToken) {
+        localStorage.setItem('userEmail', emailFromToken);
+      }
 
-      return responseData;
+      // Store user data
+      const mergedUserData = emailFromToken ? { ...responseData, email: emailFromToken } : responseData;
+      localStorage.setItem('user', JSON.stringify(mergedUserData));
+      console.log('[Google Login] ✓ User data stored successfully');
+
+      return mergedUserData;
     } catch (error) {
-      console.error('Google login failed - Full error:', error);
-      console.error('Error status:', error.response?.status);
-      console.error('Error data:', error.response?.data);
-      console.error('Error message:', error.message);
+      console.error('[Google Login] ✗ Error occurred:');
+      console.error('  Status:', error.response?.status);
+      console.error('  Data:', error.response?.data);
+      console.error('  Message:', error.message);
 
       // Create a more informative error message
       let errorMessage = 'Google login failed. ';
       if (error.response?.status === 401) {
-        errorMessage += 'Unauthorized. Please check your credentials.';
+        errorMessage += 'Unauthorized: ' + (error.response?.data?.message || 'Invalid credentials.');
       } else if (error.response?.status === 400) {
-        errorMessage += 'Invalid request. ' + (error.response?.data?.message || '');
+        errorMessage += 'Invalid request: ' + (error.response?.data?.message || 'Please check your input.');
+      } else if (error.response?.status === 500) {
+        errorMessage += 'Server error: ' + (error.response?.data?.message || 'Please try again later.');
       } else if (error.response?.data?.message) {
         errorMessage += error.response.data.message;
       } else {
-        errorMessage += error.message;
+        errorMessage += error.message || 'Please try again.';
       }
 
-      throw new Error(errorMessage);
+      console.error('[Google Login] Final error:', errorMessage);
+      const finalError = new Error(errorMessage);
+      throw finalError;
     }
   }
 
