@@ -47,7 +47,7 @@ function SignUpPage() {
 
       // Redirect to home after registration
       setTimeout(() => {
-        navigate(getRoleHomePath(response?.role || role));
+        navigate('/home');
       }, 1500);
     } catch (err) {
       // Error is handled by useAuth hook
@@ -57,6 +57,8 @@ function SignUpPage() {
 
   const handleGoogleSuccess = (response) => {
     navigate(getRoleHomePath(response?.role || response?.user?.role));
+  const handleGoogleSuccess = () => {
+    navigate('/bookings');
   };
 
   const handleGoogleError = () => {

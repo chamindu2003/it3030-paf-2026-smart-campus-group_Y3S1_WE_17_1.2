@@ -6,11 +6,18 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LandingPage from './pages/LandingPage';
 import AdminDashboard from './pages/AdminDashboard';
 import UserDashboard from './pages/UserDashboard';
+import { useAuth } from './hooks/useAuth';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
+import BookingRequestPage from './pages/BookingRequestPage';
+import UserBookingsPage from './pages/UserBookingsPage';
+import AdminBookingPage from './pages/AdminBookingPage';
 
-// Google OAuth Client ID - Make sure to set this in environment variables
-const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || 'your-google-client-id-here';
+function BookingsLanding() {
+  const { user } = useAuth();
+  const role = String(user?.role || '').trim().toUpperCase();
+  return role === 'ADMIN' ? <AdminBookingPage /> : <UserBookingsPage />;
+}
 
 function App() {
   return (
@@ -25,7 +32,16 @@ function App() {
 
             {/* Protected Routes */}
             <Route
-              path="/home"
+              path="/bookings/new"
+              element={
+                <ProtectedRoute>
+                  <BookingRequestPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/bookings"
               element={
                 <ProtectedRoute>
                   <AdminDashboard />
@@ -48,6 +64,9 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* Root redirect */}
+            <Route path="/" element={<Navigate to="/bookings" replace />} />
 
             {/* Catch-all redirect */}
             <Route path="*" element={<Navigate to="/" replace />} />
