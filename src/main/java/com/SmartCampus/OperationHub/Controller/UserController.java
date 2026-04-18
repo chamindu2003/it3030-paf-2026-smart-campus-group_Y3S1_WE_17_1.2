@@ -32,7 +32,8 @@ public class UserController {
             AuthResponse response = userService.login(loginRequest);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new AuthResponse(null, null, "Login failed: " + e.getMessage()));
         }
     }
 

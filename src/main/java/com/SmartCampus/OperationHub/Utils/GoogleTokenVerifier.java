@@ -2,6 +2,8 @@ package com.SmartCampus.OperationHub.Utils;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Base64;
 import java.util.HashMap;
@@ -16,6 +18,8 @@ import java.util.regex.Pattern;
 @Component
 public class GoogleTokenVerifier {
 
+    private static final Logger logger = LoggerFactory.getLogger(GoogleTokenVerifier.class);
+
     @Value("${oauth2.google.client-id:your-client-id-here}")
     private String googleClientId;
 
@@ -26,10 +30,13 @@ public class GoogleTokenVerifier {
      */
     public Map<String, Object> verifyIdToken(String idToken) {
         try {
+            logger.info("Starting Google token verification");
+            
             // JWT format: header.payload.signature
             String[] parts = idToken.split("\\.");
             if (parts.length != 3) {
-                throw new IllegalArgumentException("Invalid token format");
+                logger.error("Token format invalid: expected 3 parts, got {}", parts.length);
+                throw new IllegalArgumentException("Invalid token format: expected 3 JWT parts");
             }
 
             // Decode payload (second part)
@@ -43,22 +50,37 @@ public class GoogleTokenVerifier {
             // Decode from Base64
             byte[] decodedBytes = Base64.getUrlDecoder().decode(payload);
             String decodedPayload = new String(decodedBytes);
+            logger.debug("Decoded payload: {}", decodedPayload);
 
             // Parse JSON payload manually without ObjectMapper
             Map<String, Object> claims = parseJsonPayload(decodedPayload);
+            
+            // Validate required fields
+            if (claims.get("email") == null) {
+                logger.error("Token missing email claim");
+                throw new IllegalArgumentException("Token missing required 'email' claim");
+            }
+            
+            if (claims.get("sub") == null) {
+                logger.error("Token missing sub claim");
+                throw new IllegalArgumentException("Token missing required 'sub' claim");
+            }
+            
+            logger.info("Token verified successfully for email: {}", claims.get("email"));
 
             // Verify the audience (client ID) - optional for development
             String audience = (String) claims.get("aud");
             if (audience != null && !audience.equals(googleClientId)) {
-                // For development, just log a warning instead of failing
-                System.out.println("Warning: Token audience (" + audience + ") does not match client ID (" + googleClientId + ")");
+                logger.warn("Token audience ({}) does not match configured client ID ({}). This is OK for development.", audience, googleClientId);
             }
 
             return claims;
 
         } catch (IllegalArgumentException e) {
+            logger.error("Token verification failed: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
+            logger.error("Unexpected error during token verification: {}", e.getMessage(), e);
             throw new IllegalArgumentException("Invalid ID token: " + e.getMessage());
         }
     }
