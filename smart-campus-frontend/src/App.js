@@ -19,7 +19,7 @@ import AdminBookingPage from './pages/AdminBookingPage';
 // TICKET SYSTEM IMPORTS
 import TicketForm from './components/TicketForm';
 import TicketList from './pages/TicketList';
-import TicketDetail from './components/TicketDetail'; 
+import TicketDetail from './pages/TicketDetail';
 
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || 'your-google-client-id-here';
 
