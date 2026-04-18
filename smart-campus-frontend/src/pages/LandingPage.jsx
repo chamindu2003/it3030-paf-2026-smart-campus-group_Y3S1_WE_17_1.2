@@ -9,11 +9,12 @@ import '../styles/landing.css';
  */
 function LandingPage() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const handleGetStarted = () => {
     if (isAuthenticated) {
-      navigate('/home');
+      const role = String(user?.role || '').trim().toUpperCase();
+      navigate(role === 'ADMIN' ? '/home' : '/dashboard');
     } else {
       navigate('/signup');
     }

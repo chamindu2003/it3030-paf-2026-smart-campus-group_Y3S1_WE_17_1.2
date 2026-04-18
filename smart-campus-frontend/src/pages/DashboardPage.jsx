@@ -61,7 +61,7 @@ function DashboardPage() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   if (!isAuthenticated || !user) {

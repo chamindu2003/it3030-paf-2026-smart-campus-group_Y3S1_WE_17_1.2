@@ -51,6 +51,14 @@ function App() {
               }
             />
             <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/home/users"
               element={
                 <ProtectedRoute>
@@ -66,9 +74,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
-            {/* Root redirect */}
-            <Route path="/" element={<Navigate to="/bookings" replace />} />
 
             {/* Catch-all redirect */}
             <Route path="*" element={<Navigate to="/" replace />} />

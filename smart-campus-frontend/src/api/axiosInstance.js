@@ -48,11 +48,11 @@ axiosInstance.interceptors.response.use(
   (error) => {
     // Handle 401 Unauthorized (token expired or invalid)
     if (error.response?.status === 401) {
-      // Clear token and redirect to login
+      // Clear token and redirect to landing page
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       if (globalThis.window !== undefined) {
-        globalThis.window.location.href = '/login';
+        globalThis.window.location.href = '/';
       }
     }
 

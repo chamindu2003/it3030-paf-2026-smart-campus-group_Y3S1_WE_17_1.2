@@ -82,7 +82,7 @@ function UserBookingsPage() {
       <div className="dashboard-card booking-dashboard-card">
         <div className="dashboard-header">
           <h1>Your Bookings</h1>
-          <button className="logout-btn" onClick={() => navigate('/home')}>
+          <button className="logout-btn" onClick={() => navigate('/dashboard')}>
             Back
           </button>
         </div>

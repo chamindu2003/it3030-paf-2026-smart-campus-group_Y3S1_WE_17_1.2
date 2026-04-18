@@ -147,7 +147,7 @@ function AdminDashboard() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   const handleRefresh = async () => {
