@@ -3,51 +3,53 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import './App.css';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import LandingPage from './pages/LandingPage';
-import AdminDashboard from './pages/AdminDashboard';
+import { useAuth } from './hooks/useAuth';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
-import FacilitiesList from './pages/FacilitiesList';
-import FacilityDetail from './pages/FacilityDetail';
+import BookingRequestPage from './pages/BookingRequestPage';
+import UserBookingsPage from './pages/UserBookingsPage';
+import AdminBookingPage from './pages/AdminBookingPage';
 
-// Google OAuth Client ID - Make sure to set this in environment variables
-const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || 'your-google-client-id-here';
+function BookingsLanding() {
+  const { user } = useAuth();
+  const role = String(user?.role || '').trim().toUpperCase();
+  return role === 'ADMIN' ? <AdminBookingPage /> : <UserBookingsPage />;
+}
 
 function App() {
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider clientId="584522305897-e4imhiui27j808mdctedqalbf3bc605e.apps.googleusercontent.com">
       <Router>
         <AuthProvider>
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
 
             {/* Protected Routes */}
             <Route
-              path="/home"
+              path="/bookings/new"
               element={
                 <ProtectedRoute>
-                  <AdminDashboard />
+                  <BookingRequestPage />
                 </ProtectedRoute>
               }
             />
+
             <Route
-              path="/home/users"
+              path="/bookings"
               element={
                 <ProtectedRoute>
-                  <AdminDashboard />
+                  <BookingsLanding />
                 </ProtectedRoute>
               }
             />
+
+            {/* Root redirect */}
+            <Route path="/" element={<Navigate to="/bookings" replace />} />
 
             {/* Catch-all redirect */}
-            <Route path="*" element={<Navigate to="/home" replace />} />
-
-            <Route path="/facilities" element={<FacilitiesList />} />
-            <Route path="/facilities/:id" element={<FacilityDetail />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<Navigate to="/bookings" replace />} />
           </Routes>
         </AuthProvider>
       </Router>

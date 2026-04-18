@@ -101,6 +101,55 @@ public class BookingService {
         return saved;
     }
 
+    public List<Booking> getBookingsForUser(Long userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId is required");
+        }
+        return bookingRepository.findByUserIdOrderByBookingDateDescStartTimeDesc(userId);
+    }
+
+    /**
+     * Admin dashboard query.
+     */
+    public List<Booking> searchBookingsForAdmin(Long userId, Long resourceId, String status, String actingRole) {
+        if (!isAdmin(actingRole)) {
+            throw new SecurityException("Only admins can view all bookings");
+        }
+        return bookingRepository.searchBookings(userId, resourceId, status);
+    }
+
+    /**
+     * User cancellation.
+     *
+     * Allowed transitions:
+     * - PENDING -> CANCELLED
+     * - APPROVED -> CANCELLED
+     */
+    public Booking cancelBooking(Long bookingId, Long userId) {
+        if (bookingId == null) {
+            throw new IllegalArgumentException("bookingId is required");
+        }
+        if (userId == null) {
+            throw new IllegalArgumentException("userId is required");
+        }
+
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+
+        if (!userId.equals(booking.getUserId())) {
+            throw new SecurityException("You can only cancel your own bookings");
+        }
+
+        String currentStatus = normalizeStatus(booking.getStatus());
+        if (!"PENDING".equals(currentStatus) && !"APPROVED".equals(currentStatus)) {
+            throw new IllegalStateException("Only PENDING or APPROVED bookings can be cancelled");
+        }
+
+        booking.setStatus("CANCELLED");
+        booking.setRejectionReason(null);
+        return bookingRepository.save(booking);
+    }
+
     private void validateBookingForCreate(Booking booking) {
         if (booking == null) {
             throw new IllegalArgumentException("Booking is required");

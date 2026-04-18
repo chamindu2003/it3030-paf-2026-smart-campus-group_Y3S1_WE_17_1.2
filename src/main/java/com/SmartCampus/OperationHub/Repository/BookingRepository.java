@@ -10,6 +10,17 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
+    List<Booking> findByUserIdOrderByBookingDateDescStartTimeDesc(Long userId);
+
+    @Query(
+            "SELECT b FROM Booking b " +
+            "WHERE (:userId IS NULL OR b.userId = :userId) " +
+            "AND (:resourceId IS NULL OR b.resourceId = :resourceId) " +
+            "AND (:status IS NULL OR UPPER(TRIM(b.status)) = UPPER(TRIM(:status))) " +
+            "ORDER BY b.bookingDate DESC, b.startTime DESC"
+    )
+    List<Booking> searchBookings(Long userId, Long resourceId, String status);
+
     @Query(
             "SELECT b FROM Booking b " +
             "WHERE b.resourceId = :resId AND b.bookingDate = :date " +
