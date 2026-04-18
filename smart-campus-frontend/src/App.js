@@ -7,6 +7,8 @@ import LandingPage from './pages/LandingPage';
 import AdminDashboard from './pages/AdminDashboard';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
+import FacilitiesList from './pages/FacilitiesList';
+import FacilityDetail from './pages/FacilityDetail';
 
 // Google OAuth Client ID - Make sure to set this in environment variables
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || 'your-google-client-id-here';
@@ -41,6 +43,10 @@ function App() {
             />
 
             {/* Catch-all redirect */}
+            <Route path="*" element={<Navigate to="/home" replace />} />
+
+            <Route path="/facilities" element={<FacilitiesList />} />
+            <Route path="/facilities/:id" element={<FacilityDetail />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>
