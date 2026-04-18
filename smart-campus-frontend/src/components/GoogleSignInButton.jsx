@@ -86,7 +86,10 @@ function GoogleSignInButton({ onSuccess, onError }) {
         onSuccess={handleSuccess}
         onError={handleError}
         text="signin_with"
-        width="300"
+        width="360"
+        shape="pill"
+        size="large"
+        logo_alignment="left"
         locale="en"
       />
     </div>

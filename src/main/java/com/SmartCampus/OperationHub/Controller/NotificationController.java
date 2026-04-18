@@ -1,13 +1,19 @@
 package com.SmartCampus.OperationHub.Controller;
 
 import com.SmartCampus.OperationHub.DTO.NotificationDTO;
+import com.SmartCampus.OperationHub.DTO.TicketCommentNotificationRequest;
+import com.SmartCampus.OperationHub.DTO.TicketStatusNotificationRequest;
+import com.SmartCampus.OperationHub.Model.UserModel;
+import com.SmartCampus.OperationHub.Repository.UserRepo;
 import com.SmartCampus.OperationHub.Service.NotificationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -20,6 +26,7 @@ import java.util.UUID;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final UserRepo userRepo;
 
     // GET all notifications — Endpoint 1
     @GetMapping
@@ -61,6 +68,28 @@ public class NotificationController {
         return ResponseEntity.noContent().build();
     }
 
+    // POST ticket status changed notification
+    @PostMapping("/events/ticket-status")
+    public ResponseEntity<NotificationDTO> notifyTicketStatusChanged(
+            @Valid @RequestBody TicketStatusNotificationRequest request) {
+        return ResponseEntity.ok(notificationService.notifyTicketStatusChanged(
+                request.getRecipientId(),
+                request.getTicketId(),
+                request.getStatus()
+        ));
+    }
+
+    // POST ticket comment notification
+    @PostMapping("/events/ticket-comment")
+    public ResponseEntity<NotificationDTO> notifyTicketComment(
+            @Valid @RequestBody TicketCommentNotificationRequest request) {
+        return ResponseEntity.ok(notificationService.notifyTicketComment(
+                request.getRecipientId(),
+                request.getTicketId(),
+                request.getCommenterName()
+        ));
+    }
+
     // Gets the logged-in user's ID from JWT
     private Long getCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -68,9 +97,11 @@ public class NotificationController {
             throw new AccessDeniedException("Unauthenticated");
         }
 
-        // NOTE: This assumes Authentication.getName() contains a numeric userId.
-        // If your JWT stores email as the subject (common), change this to look up the userId by email.
-        return Long.parseLong(auth.getName());
+        // JWT subject is email in this project; resolve userId from email.
+        String email = auth.getName();
+        UserModel user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new AccessDeniedException("User not found for authenticated subject"));
+        return user.getId();
     }
 
 

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { userAPI } from '../api/apiService';
+import { notificationAPI, userAPI } from '../api/apiService';
+import NotificationPanel from '../components/NotificationPanel';
 
 /**
  * DashboardPage Component
@@ -13,6 +14,8 @@ function DashboardPage() {
   const [userData, setUserData] = useState(user);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
 
   const loadUserData = useCallback(async () => {
@@ -35,6 +38,27 @@ function DashboardPage() {
     loadUserData();
   }, [loadUserData]);
 
+  const loadUnreadCount = useCallback(async () => {
+    try {
+      const data = await notificationAPI.getUnreadCount();
+      setUnreadCount(data?.unreadCount || 0);
+    } catch {
+      setUnreadCount(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadUnreadCount();
+  }, [loadUnreadCount]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      loadUnreadCount();
+    }, 30000);
+
+    return () => clearInterval(timer);
+  }, [loadUnreadCount]);
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -49,9 +73,19 @@ function DashboardPage() {
       <div className="dashboard-card">
         <div className="dashboard-header">
           <h1>Welcome, {userData?.name || user.name}!</h1>
-          <button className="logout-btn" onClick={handleLogout}>
-            Logout
-          </button>
+          <div className="dashboard-header-actions">
+            <button
+              className="notification-bell"
+              onClick={() => setNotificationOpen(true)}
+              type="button"
+            >
+              Notifications
+              {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+            </button>
+            <button className="logout-btn" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         </div>
 
         {error && <div className="error-message">{error}</div>}
@@ -77,6 +111,14 @@ function DashboardPage() {
           <p><strong>Status:</strong> {isAuthenticated ? 'Logged In ✓' : 'Not Logged In'}</p>
         </div>
       </div>
+
+      <NotificationPanel
+        open={notificationOpen}
+        onClose={() => {
+          setNotificationOpen(false);
+          loadUnreadCount();
+        }}
+      />
     </div>
   );
 }
