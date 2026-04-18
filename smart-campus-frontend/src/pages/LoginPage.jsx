@@ -16,8 +16,8 @@ function LoginPage() {
   const { login, error, loading, clearError, setError, updateUser } = useAuth();
   const navigate = useNavigate();
 
-  const getRoleHomePath = (roleValue) => {
-    const normalizedRole = String(roleValue || '').toUpperCase();
+  const getPostLoginPath = (roleValue) => {
+    const normalizedRole = String(roleValue || '').trim().toUpperCase();
     return normalizedRole === 'ADMIN' ? '/home' : '/dashboard';
   };
 
@@ -34,8 +34,7 @@ function LoginPage() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       }
-      // Navigate by role: admin -> /home, others -> /dashboard
-      navigate(getRoleHomePath(response?.role || response?.user?.role));
+      navigate(getPostLoginPath(response?.role || response?.user?.role));
     } catch (err) {
       // Error is handled by useAuth hook
       console.error('Login failed:', err);
@@ -64,7 +63,7 @@ function LoginPage() {
 
       // Small delay to ensure state updates
       setTimeout(() => {
-        const targetPath = getRoleHomePath(response?.role || response?.user?.role);
+        const targetPath = getPostLoginPath(response?.role || response?.user?.role);
         console.log('[LoginPage] ✓ Navigating to', targetPath);
         navigate(targetPath);
       }, 100);

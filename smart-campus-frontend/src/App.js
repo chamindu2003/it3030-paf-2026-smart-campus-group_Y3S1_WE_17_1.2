@@ -9,6 +9,9 @@ import UserDashboard from './pages/UserDashboard';
 import { useAuth } from './hooks/useAuth';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
+import FacilitiesList from './pages/FacilitiesList';
+import FacilityDetail from './pages/FacilityDetail';
+import FacilitiesPage from './pages/FacilitiesPage';
 import BookingRequestPage from './pages/BookingRequestPage';
 import UserBookingsPage from './pages/UserBookingsPage';
 import AdminBookingPage from './pages/AdminBookingPage';
@@ -61,6 +64,14 @@ function App() {
               }
             />
             <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/home/users"
               element={
                 <ProtectedRoute>
@@ -79,11 +90,13 @@ function App() {
               }
             />
 
-            {/* Root redirect */}
-            <Route path="/" element={<Navigate to="/bookings" replace />} />
-
             {/* Catch-all redirect */}
+            <Route path="*" element={<Navigate to="/home" replace />} />
+
+            <Route path="/facilities" element={<FacilitiesList />} />
+            <Route path="/facilities/:id" element={<FacilityDetail />} />
             <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="/user/facilities" element={<FacilitiesPage />} />
           </Routes>
         </AuthProvider>
       </Router>
