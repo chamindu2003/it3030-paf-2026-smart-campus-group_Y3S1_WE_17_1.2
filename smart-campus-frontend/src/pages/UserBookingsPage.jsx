@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { userAPI } from '../api/apiService';
+import { notificationAPI, userAPI } from '../api/apiService';
+import NotificationPanel from '../components/NotificationPanel';
 import { cancelBooking, getBookingsByUserId } from '../api/bookingService';
 import '../styles/userdashboard.css';
 
@@ -21,13 +22,13 @@ function UserBookingsPage() {
   const [profile, setProfile] = useState(user);
   const [userId, setUserId] = useState(null);
   const [bookings, setBookings] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState(null);
   const [error, setError] = useState(null);
+  const [notificationOpen, setNotificationOpen] = useState(false);
 
   const resolvedUserId = useMemo(() => userId, [userId]);
-
-  const activeRole = String(profile?.role || user?.role || '').toUpperCase();
 
   const extractEmailFromToken = useCallback((jwtToken) => {
     if (!jwtToken || typeof jwtToken !== 'string') return null;
@@ -91,6 +92,27 @@ function UserBookingsPage() {
     loadBookings().catch(() => {});
   }, [loadBookings]);
 
+  const loadUnreadCount = useCallback(async () => {
+    try {
+      const data = await notificationAPI.getUnreadCount();
+      setUnreadCount(data?.unreadCount || 0);
+    } catch {
+      setUnreadCount(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadUnreadCount();
+  }, [loadUnreadCount]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      loadUnreadCount();
+    }, 30000);
+
+    return () => clearInterval(timer);
+  }, [loadUnreadCount]);
+
   const onCancel = async (bookingId) => {
     if (!resolvedUserId) return;
     setActionLoadingId(bookingId);
@@ -107,7 +129,7 @@ function UserBookingsPage() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   const userInitials = useMemo(() => {
@@ -156,7 +178,7 @@ function UserBookingsPage() {
                   <button
                     type="button"
                     className="userdash-sidebar-item"
-                    onClick={() => navigate('/home')}
+                    onClick={() => navigate('/dashboard')}
                   >
                     <span className="userdash-sidebar-icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
@@ -185,7 +207,7 @@ function UserBookingsPage() {
                   </button>
                 </li>
                 <li>
-                  <button type="button" className="userdash-sidebar-item">
+                  <button type="button" className="userdash-sidebar-item" onClick={() => setNotificationOpen(true)}>
                     <span className="userdash-sidebar-icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
                         <path d="m5 18 4.8-4.8a3.3 3.3 0 0 1 4.6 0l.4.4a3.3 3.3 0 0 1 0 4.6L10 23" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
@@ -196,7 +218,7 @@ function UserBookingsPage() {
                   </button>
                 </li>
                 <li>
-                  <button type="button" className="userdash-sidebar-item">
+                  <button type="button" className="userdash-sidebar-item" onClick={() => navigate('/user/facilities')}>
                     <span className="userdash-sidebar-icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
                         <path d="M4 20V9m8 11V4m8 16v-7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
@@ -236,6 +258,20 @@ function UserBookingsPage() {
             </div>
 
             <div className="userdash-actions">
+              <button
+                type="button"
+                className="userdash-notification-btn"
+                onClick={() => setNotificationOpen(true)}
+                aria-label="Open notifications"
+              >
+                <span className="userdash-bell" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 4.5a4 4 0 0 0-4 4v2.1c0 .9-.3 1.8-.9 2.5L6 14.5h12l-1.1-1.4a4 4 0 0 1-.9-2.5V8.5a4 4 0 0 0-4-4Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M10 17.5a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                </span>
+                {unreadCount > 0 && <span className="userdash-badge">{unreadCount}</span>}
+              </button>
               <button
                 type="button"
                 className="userdash-refresh-btn"
@@ -332,6 +368,14 @@ function UserBookingsPage() {
           </section>
         </main>
       </div>
+
+      <NotificationPanel
+        open={notificationOpen}
+        onClose={() => {
+          setNotificationOpen(false);
+          loadUnreadCount();
+        }}
+      />
     </div>
   );
 }
