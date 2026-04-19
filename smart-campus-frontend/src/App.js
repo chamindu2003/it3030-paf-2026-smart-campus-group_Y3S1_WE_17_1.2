@@ -16,6 +16,12 @@ import BookingRequestPage from './pages/BookingRequestPage';
 import UserBookingsPage from './pages/UserBookingsPage';
 import AdminBookingPage from './pages/AdminBookingPage';
 
+// TICKET SYSTEM IMPORTS
+import TicketForm from './components/TicketForm';
+import TicketList from './pages/TicketList';
+import TicketDetail from './pages/TicketDetail';
+import TechnicianTasks from './pages/TechnicianTasks'; // Adjust the path based on where you saved it
+
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || 'your-google-client-id-here';
 
 function BookingsLanding() {
@@ -86,6 +92,19 @@ function App() {
             <Route path="/facilities" element={<FacilitiesList />} />
             <Route path="/facilities/:id" element={<FacilityDetail />} />
             <Route path="/user/facilities" element={<FacilitiesPage />} />
+
+            {/* Catch-all redirect */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+
+            {/* Booking System Routes */}
+            <Route path="/bookings/new" element={<ProtectedRoute><BookingRequestPage /></ProtectedRoute>} />
+            <Route path="/bookings" element={<ProtectedRoute><BookingsLanding /></ProtectedRoute>} />
+            <Route path="/user/facilities" element={<ProtectedRoute><FacilitiesPage /></ProtectedRoute>} />
+
+            {/* Dashboard Routes */}
+            <Route path="/home" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/home/users" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
 
             {/* Catch-all redirect */}
             <Route path="*" element={<Navigate to="/" replace />} />

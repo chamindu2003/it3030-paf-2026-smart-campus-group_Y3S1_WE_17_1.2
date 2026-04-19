@@ -13,6 +13,9 @@ target/
 .idea/
 *.iml
 .vscode/
+
+### Frontend / Node ###
+node_modules/
 .DS_Store
 
 # Java compiled files

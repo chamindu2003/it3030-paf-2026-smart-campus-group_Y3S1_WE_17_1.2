@@ -28,7 +28,6 @@ function GoogleSignInButton({ onSuccess, onError }) {
       console.log('[GoogleSignInButton] ✓ Backend responded successfully');
       console.log('[GoogleSignInButton] Response has token:', !!response?.token);
 
-      // Validate that we got a valid token back
       if (!response?.token) {
         console.error('[GoogleSignInButton] ✗ No token in backend response');
         console.error('[GoogleSignInButton] Response:', response);
@@ -38,7 +37,6 @@ function GoogleSignInButton({ onSuccess, onError }) {
       }
 
       console.log('[GoogleSignInButton] ✓ Validation passed - calling onSuccess');
-      // Call parent component's success handler
       if (onSuccess) {
         onSuccess(response);
       } else {
@@ -53,7 +51,6 @@ function GoogleSignInButton({ onSuccess, onError }) {
         console.error('  Data:', error.response.data);
       }
 
-      // Call parent component's error handler with detailed error
       if (onError) {
         let errorMessage = 'Google sign-in failed. ';
         if (error.response?.data?.message) {
