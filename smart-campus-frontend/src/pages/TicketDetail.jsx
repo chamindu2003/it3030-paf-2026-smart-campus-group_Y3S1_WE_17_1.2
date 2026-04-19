@@ -6,6 +6,28 @@ import { useAuth } from '../hooks/useAuth';
 import TicketNavBar from '../components/TicketNavBar';
 import '../styles/TicketPages.css';
 
+function resolveUserId(user) {
+    const raw = localStorage.getItem('user');
+    let cachedUser = null;
+
+    if (raw) {
+        try {
+            cachedUser = JSON.parse(raw);
+        } catch {
+            cachedUser = null;
+        }
+    }
+
+    return (
+        user?.id ??
+        user?.userId ??
+        user?.user?.id ??
+        cachedUser?.id ??
+        cachedUser?.userId ??
+        null
+    );
+}
+
 const TicketDetail = () => {
     const { id } = useParams();
     const { user } = useAuth();
@@ -21,7 +43,7 @@ const TicketDetail = () => {
     const [selectedStatus, setSelectedStatus] = useState("");
     const [actionLoading, setActionLoading] = useState(false);
 
-    const resolvedUserId = user?.id ?? user?.userId ?? user?.user?.id ?? null;
+    const resolvedUserId = resolveUserId(user);
     const activeRole = String(user?.role || '').toUpperCase();
     const isAdmin = activeRole === 'ADMIN';
     const isTechnician = activeRole === 'TECHNICIAN';
@@ -72,11 +94,12 @@ const TicketDetail = () => {
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
         if (!newComment.trim()) return;
+        if (!resolvedUserId) return;
 
         try {
             const commentPayload = {
                 content: newComment,
-                authorId: Number(resolvedUserId || 1), // Uses logged-in user ID, falls back to 1
+                authorId: Number(resolvedUserId),
                 authorName: user?.name || user?.email || "Unknown User"
             };
             await ticketService.addComment(id, commentPayload);

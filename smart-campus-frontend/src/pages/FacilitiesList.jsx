@@ -211,6 +211,14 @@ function FacilitiesList() {
     navigate('/home/users');
   };
 
+  const goToBookings = () => {
+    navigate('/bookings');
+  };
+
+  const goToTickets = () => {
+    navigate('/tickets');
+  };
+
   const goToFacilities = () => {
     navigate('/facilities');
   };
@@ -250,7 +258,7 @@ function FacilitiesList() {
                 </button>
               </li>
               <li>
-                <button type="button" className="admin-sidebar-item" onClick={goToOverview}>
+                <button type="button" className="admin-sidebar-item" onClick={goToBookings}>
                   <span className="admin-sidebar-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none">
                       <rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" strokeWidth="1.7" />
@@ -262,7 +270,7 @@ function FacilitiesList() {
                 </button>
               </li>
               <li>
-                <button type="button" className="admin-sidebar-item" onClick={goToOverview}>
+                <button type="button" className="admin-sidebar-item" onClick={goToTickets}>
                   <span className="admin-sidebar-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none">
                       <path d="m5 18 4.8-4.8a3.3 3.3 0 0 1 4.6 0l.4.4a3.3 3.3 0 0 1 0 4.6L10 23" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />

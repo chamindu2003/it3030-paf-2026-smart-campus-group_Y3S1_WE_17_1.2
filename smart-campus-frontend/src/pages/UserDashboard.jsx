@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { bookingAPI, notificationAPI, userAPI } from '../api/apiService';
 import NotificationPanel from '../components/NotificationPanel';
-import UserPortalSidebar from '../components/UserPortalSidebar';
 import { useAuth } from '../hooks/useAuth';
 import '../styles/userdashboard.css';
 
@@ -198,7 +197,7 @@ function UserDashboard() {
                   </li>
 
                   <li>
-                    <button type="button" className="userdash-sidebar-item" onClick={() => navigate('/bookings/new')}>
+                    <button type="button" className="userdash-sidebar-item" onClick={() => navigate('/user/facilities')}>
                     <span className="userdash-sidebar-icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
                         <path d="M4 20V9m8 11V4m8 16v-7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />

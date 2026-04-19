@@ -4,6 +4,28 @@ import { useAuth } from '../hooks/useAuth';
 import TicketNavBar from './TicketNavBar';
 import '../styles/TicketPages.css';
 
+function resolveUserId(user) {
+    const raw = localStorage.getItem('user');
+    let cachedUser = null;
+
+    if (raw) {
+        try {
+            cachedUser = JSON.parse(raw);
+        } catch {
+            cachedUser = null;
+        }
+    }
+
+    return (
+        user?.id ??
+        user?.userId ??
+        user?.user?.id ??
+        cachedUser?.id ??
+        cachedUser?.userId ??
+        null
+    );
+}
+
 const TicketForm = () => {
     const { user } = useAuth();
     const [resourceId, setResourceId] = useState('1');
@@ -15,7 +37,7 @@ const TicketForm = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
-    const resolvedUserId = user?.id ?? user?.userId ?? user?.user?.id ?? null;
+    const resolvedUserId = resolveUserId(user);
 
     if (!resolvedUserId) {
         return (
@@ -41,7 +63,7 @@ const TicketForm = () => {
                 resourceId: Number(resourceId),
                 category,
                 priority,
-                description,
+                description: description.trim(),
             };
 
             const response = await ticketService.createTicket(ticketPayload);
@@ -58,7 +80,10 @@ const TicketForm = () => {
             setResourceId('1');
             setFile(null);
         } catch (error) {
-            setErrorMessage(error?.response?.data?.message || 'Failed to submit ticket. Please try again.');
+            const backendMessage =
+                error?.response?.data?.message ||
+                (typeof error?.response?.data === 'string' ? error.response.data : null);
+            setErrorMessage(backendMessage || error?.message || 'Failed to submit ticket. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
@@ -110,7 +135,7 @@ const TicketForm = () => {
                             <option value="LOW">Low</option>
                             <option value="MEDIUM">Medium</option>
                             <option value="HIGH">High</option>
-                            <option value="CRITICAL">Critical</option>
+                            <option value="URGENT">Urgent</option>
                         </select>
                     </div>
 

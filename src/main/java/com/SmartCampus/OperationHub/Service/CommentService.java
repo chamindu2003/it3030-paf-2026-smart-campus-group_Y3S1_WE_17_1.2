@@ -19,6 +19,9 @@ public class CommentService {
     @Autowired
     private TicketRepository ticketRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
     // Method to save a new comment
     public Comment addComment(Long ticketId, Comment comment) {
         // 1. Find the actual Ticket object in the database
@@ -29,7 +32,24 @@ public class CommentService {
         comment.setTicket(ticket);
 
         // 3. Save to database
-        return commentRepository.save(comment);
+        Comment saved = commentRepository.save(comment);
+
+        Long authorId = saved.getAuthorId();
+        String commenterName = authorId == null ? "A team member" : "User #" + authorId;
+
+        Long ownerId = ticket.getUserId();
+        if (ownerId != null && (authorId == null || !ownerId.equals(authorId))) {
+            notificationService.notifyTicketComment(ownerId, ticket.getId(), commenterName);
+        }
+
+        Long assigneeId = ticket.getAssigneeId();
+        if (assigneeId != null
+                && (authorId == null || !assigneeId.equals(authorId))
+                && (ownerId == null || !assigneeId.equals(ownerId))) {
+            notificationService.notifyTicketComment(assigneeId, ticket.getId(), commenterName);
+        }
+
+        return saved;
     }
 
     // Method to fetch all comments for a specific ticket (we will need this for the frontend!)

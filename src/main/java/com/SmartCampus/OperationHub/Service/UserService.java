@@ -24,10 +24,16 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepo userRepository, AuthService authService, PasswordEncoder passwordEncoder) {
+    private final NotificationService notificationService;
+
+    public UserService(UserRepo userRepository,
+                       AuthService authService,
+                       PasswordEncoder passwordEncoder,
+                       NotificationService notificationService) {
         this.userRepository = userRepository;
         this.authService = authService;
         this.passwordEncoder = passwordEncoder;
+        this.notificationService = notificationService;
     }
 
     public AuthResponse login(LoginRequest loginRequest) {
@@ -44,6 +50,7 @@ public class UserService {
         logger.info("Registering new user: {} with role: {}", user.getEmail(), user.getRole());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         UserModel savedUser = userRepository.save(user);
+        notificationService.notifyUserRegistered(savedUser);
         logger.info("User registered successfully: {}", user.getEmail());
         return savedUser;
     }

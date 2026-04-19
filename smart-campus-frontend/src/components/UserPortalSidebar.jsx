@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 function UserPortalSidebar({
   activeItem,
@@ -10,6 +11,7 @@ function UserPortalSidebar({
   userInitials,
 }) {
   const navigate = useNavigate();
+  const handleTicketsClick = onTicketsClick || (() => navigate('/tickets'));
 
   return (
     <aside className="userdash-sidebar">
@@ -54,7 +56,7 @@ function UserPortalSidebar({
               <button
                 type="button"
                 className={`userdash-sidebar-item ${activeItem === 'tickets' ? 'is-active' : ''}`}
-                onClick={onTicketsClick}
+                onClick={handleTicketsClick}
               >
                 <span className="userdash-sidebar-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
@@ -104,3 +106,13 @@ function UserPortalSidebar({
 }
 
 export default UserPortalSidebar;
+
+UserPortalSidebar.propTypes = {
+  activeItem: PropTypes.string,
+  bookingsCount: PropTypes.number,
+  onTicketsClick: PropTypes.func,
+  displayName: PropTypes.string,
+  email: PropTypes.string,
+  profilePicture: PropTypes.string,
+  userInitials: PropTypes.string,
+};

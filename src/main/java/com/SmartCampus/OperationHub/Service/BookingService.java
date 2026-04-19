@@ -52,7 +52,9 @@ public class BookingService {
         booking.setId(null);
         booking.setStatus("PENDING");
         booking.setRejectionReason(null);
-        return bookingRepository.save(booking);
+        Booking saved = bookingRepository.save(booking);
+        notificationService.notifyBookingSubmitted(saved);
+        return saved;
     }
 
     /**
@@ -160,7 +162,9 @@ public class BookingService {
 
         booking.setStatus("CANCELLED");
         booking.setRejectionReason(null);
-        return bookingRepository.save(booking);
+        Booking saved = bookingRepository.save(booking);
+        notificationService.notifyBookingCancelled(saved);
+        return saved;
     }
 
     private void validateBookingForCreate(Booking booking) {

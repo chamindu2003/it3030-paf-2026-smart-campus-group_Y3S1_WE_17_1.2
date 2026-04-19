@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 function AdminPortalSidebar({
   activeItem,
@@ -51,7 +52,11 @@ function AdminPortalSidebar({
               </button>
             </li>
             <li>
-              <button type="button" className="admin-sidebar-item" onClick={() => navigate('/home')}>
+              <button
+                type="button"
+                className={`admin-sidebar-item ${activeItem === 'tickets' ? 'is-active' : ''}`}
+                onClick={() => navigate('/tickets')}
+              >
                 <span className="admin-sidebar-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
                     <path d="m5 18 4.8-4.8a3.3 3.3 0 0 1 4.6 0l.4.4a3.3 3.3 0 0 1 0 4.6L10 23" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
@@ -63,7 +68,11 @@ function AdminPortalSidebar({
               </button>
             </li>
             <li>
-              <button type="button" className="admin-sidebar-item" onClick={() => navigate('/home')}>
+              <button
+                type="button"
+                className={`admin-sidebar-item ${activeItem === 'facilities' ? 'is-active' : ''}`}
+                onClick={() => navigate('/facilities')}
+              >
                 <span className="admin-sidebar-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none">
                     <path d="M4 20V9m8 11V4m8 16v-7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
@@ -109,3 +118,13 @@ function AdminPortalSidebar({
 }
 
 export default AdminPortalSidebar;
+
+AdminPortalSidebar.propTypes = {
+  activeItem: PropTypes.string,
+  bookingsCount: PropTypes.number,
+  ticketsCount: PropTypes.number,
+  usersCount: PropTypes.number,
+  displayName: PropTypes.string,
+  email: PropTypes.string,
+  initials: PropTypes.string,
+};

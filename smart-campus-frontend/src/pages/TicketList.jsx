@@ -5,13 +5,35 @@ import { useAuth } from '../hooks/useAuth';
 import TicketNavBar from '../components/TicketNavBar';
 import '../styles/TicketPages.css';
 
+function resolveUserId(user) {
+    const raw = localStorage.getItem('user');
+    let cachedUser = null;
+
+    if (raw) {
+        try {
+            cachedUser = JSON.parse(raw);
+        } catch {
+            cachedUser = null;
+        }
+    }
+
+    return (
+        user?.id ??
+        user?.userId ??
+        user?.user?.id ??
+        cachedUser?.id ??
+        cachedUser?.userId ??
+        null
+    );
+}
+
 const TicketList = () => {
     const { user, loading: authLoading } = useAuth();
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [title, setTitle] = useState('Active Tickets');
 
-    const resolvedUserId = user?.id ?? user?.userId ?? user?.user?.id ?? null;
+    const resolvedUserId = resolveUserId(user);
     const role = String(user?.role || 'USER').toUpperCase();
     const isWaitingForProfile = authLoading || (role !== 'ADMIN' && !resolvedUserId);
 

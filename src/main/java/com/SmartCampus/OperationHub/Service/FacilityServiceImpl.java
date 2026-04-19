@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 public class FacilityServiceImpl implements FacilityService {
 
     private final FacilityRepository facilityRepository;
+    private final NotificationService notificationService;
 
     // GET ALL (with filters)
     @Override
@@ -38,7 +39,9 @@ public class FacilityServiceImpl implements FacilityService {
     @Override
     public FacilityResponseDTO create(FacilityRequestDTO dto) {
         Facility facility = toEntity(dto);
-        return toResponseDTO(facilityRepository.save(facility));
+        Facility saved = facilityRepository.save(facility);
+        notificationService.notifyFacilityCreated(saved.getId(), saved.getName());
+        return toResponseDTO(saved);
     }
 
     // UPDATE EXISTING
@@ -53,7 +56,9 @@ public class FacilityServiceImpl implements FacilityService {
         facility.setAvailabilityWindows(dto.getAvailabilityWindows());
         facility.setDescription(dto.getDescription());
         if (dto.getStatus() != null) facility.setStatus(dto.getStatus());
-        return toResponseDTO(facilityRepository.save(facility));
+        Facility saved = facilityRepository.save(facility);
+        notificationService.notifyFacilityUpdated(saved.getId(), saved.getName());
+        return toResponseDTO(saved);
     }
 
     // UPDATE STATUS ONLY
@@ -62,16 +67,18 @@ public class FacilityServiceImpl implements FacilityService {
         Facility facility = facilityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Facility not found with id: " + id));
         facility.setStatus(status);
-        return toResponseDTO(facilityRepository.save(facility));
+        Facility saved = facilityRepository.save(facility);
+        notificationService.notifyFacilityStatusChanged(saved.getId(), saved.getName(), saved.getStatus().name());
+        return toResponseDTO(saved);
     }
 
     // DELETE
     @Override
     public void delete(Long id) {
-        if (!facilityRepository.existsById(id)) {
-            throw new RuntimeException("Facility not found with id: " + id);
-        }
-        facilityRepository.deleteById(id);
+        Facility facility = facilityRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Facility not found with id: " + id));
+        facilityRepository.delete(facility);
+        notificationService.notifyFacilityDeleted(facility.getId(), facility.getName());
     }
 
     // ── Helper: Model → ResponseDTO ──────────────
