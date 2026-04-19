@@ -19,14 +19,11 @@ function toLocalTimeISO(date) {
 function BookingRequestForm() {
   const { user } = useAuth();
 
-  const inferredUserId = useMemo(() => {
-    const candidate =
-      user?.id ?? user?.userId ?? user?.user?.id ?? user?.data?.id ?? user?.profile?.id ?? null;
-    return candidate == null ? '' : String(candidate);
-  }, [user]);
+  const signedInEmail = useMemo(() => {
+    return user?.email || localStorage.getItem('userEmail') || 'Signed-in user';
+  }, [user?.email]);
 
   const [resourceId, setResourceId] = useState('');
-  const [userId, setUserId] = useState(inferredUserId);
   const [bookingDate, setBookingDate] = useState(new Date());
   const [startTime, setStartTime] = useState(() => {
     const d = new Date();
@@ -51,13 +48,11 @@ function BookingRequestForm() {
     setSuccess(null);
 
     if (!resourceId) return setError('Resource is required');
-    if (!userId) return setError('User ID is required');
     if (!bookingDate) return setError('Booking date is required');
     if (!startTime || !endTime) return setError('Start and end time are required');
 
     const bookingPayload = {
       resourceId: Number(resourceId),
-      userId: Number(userId),
       bookingDate: toLocalDateISO(bookingDate),
       startTime: toLocalTimeISO(startTime),
       endTime: toLocalTimeISO(endTime),
@@ -85,6 +80,10 @@ function BookingRequestForm() {
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
 
+      <div className="booking-identity-note">
+        Booking as <strong>{signedInEmail}</strong>. User ID is assigned automatically by the system.
+      </div>
+
       <div className="booking-grid">
         <label className="booking-field">
           <span>Resource</span>
@@ -94,17 +93,6 @@ function BookingRequestForm() {
             <option value="2">Resource 2</option>
             <option value="3">Resource 3</option>
           </select>
-        </label>
-
-        <label className="booking-field">
-          <span>User ID</span>
-          <input
-            type="number"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            placeholder="e.g. 10"
-            required
-          />
         </label>
 
         <label className="booking-field">
