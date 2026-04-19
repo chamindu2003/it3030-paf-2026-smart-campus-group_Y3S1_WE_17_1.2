@@ -53,6 +53,16 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            
+            {/* Admin Routes */}
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/home"
               element={
@@ -69,6 +79,8 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            
+            {/* User Routes */}
             <Route
               path="/dashboard"
               element={
