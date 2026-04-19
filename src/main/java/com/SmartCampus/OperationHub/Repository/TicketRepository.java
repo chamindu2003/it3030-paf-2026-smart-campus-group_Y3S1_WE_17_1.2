@@ -10,4 +10,7 @@ import java.util.List;
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
     // NEW: Find tickets assigned to a specific technician
     List<Ticket> findByAssigneeId(Long assigneeId);
+
+    // NEW: Find tickets created by a specific user
+    List<Ticket> findByUserId(Long userId);
 }

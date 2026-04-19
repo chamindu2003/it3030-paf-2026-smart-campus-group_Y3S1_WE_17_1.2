@@ -16,7 +16,7 @@ function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState('USER');
   const [success, setSuccess] = useState(null);
-  const { register, error, loading, clearError, setError } = useAuth();
+  const { register, error, loading, clearError, setError, updateUser } = useAuth();
   const navigate = useNavigate();
 
   const getRoleHomePath = (roleValue) => {
@@ -47,7 +47,8 @@ function SignUpPage() {
 
       // Redirect to home after registration
       setTimeout(() => {
-        navigate(getRoleHomePath(response?.role || role));
+        const roleFromResponse = response?.role || response?.user?.role || response?.data?.role || role;
+        navigate(getRoleHomePath(roleFromResponse));
       }, 1500);
     } catch (err) {
       // Error is handled by useAuth hook
@@ -55,8 +56,17 @@ function SignUpPage() {
     }
   };
 
-  const handleGoogleSuccess = (response) => {
-    navigate(getRoleHomePath(response?.role || response?.user?.role));
+  const handleGoogleSuccess = async (response) => {
+    try {
+      if (updateUser) {
+        await updateUser(response);
+      }
+      const roleFromResponse = response?.role || response?.user?.role || response?.data?.role || role;
+      navigate(getRoleHomePath(roleFromResponse));
+    } catch (err) {
+      console.error('Google sign-up auth update failed:', err);
+      setError('Login failed after Google sign-up. Please refresh and try again.');
+    }
   };
 
   const handleGoogleError = () => {

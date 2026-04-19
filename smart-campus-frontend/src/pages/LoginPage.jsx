@@ -13,7 +13,7 @@ function LoginPage() {
   const [email, setEmail] = React.useState('admin@example.com');
   const [password, setPassword] = React.useState('ChangeMeAdmin@2026');
   const [rememberMe, setRememberMe] = React.useState(true);
-  const { login, error, loading, clearError, setError, updateUser } = useAuth();
+  const { login, error, loading, clearError, setError, updateUser, user } = useAuth();
   const navigate = useNavigate();
 
   const getPostLoginPath = (roleValue) => {
@@ -28,20 +28,28 @@ function LoginPage() {
     try {
       const response = await login(email, password);
 
+      const roleFromResponse =
+        response?.role ||
+        response?.user?.role ||
+        response?.data?.role ||
+        response?.user?.data?.role ||
+        user?.role ||
+        'USER';
+
       // Optional: if user doesn't want remember-me, clear persisted token/user.
       // (Your current auth flow already stores token; this just respects the checkbox.)
       if (!rememberMe) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       }
-      navigate(getPostLoginPath(response?.role || response?.user?.role));
+      navigate(getPostLoginPath(roleFromResponse));
     } catch (err) {
       // Error is handled by useAuth hook
       console.error('Login failed:', err);
     }
   };
 
-  const handleGoogleSuccess = (response) => {
+  const handleGoogleSuccess = async (response) => {
     try {
       console.log('[LoginPage] Google login success handler called');
       console.log('[LoginPage] Full response:', JSON.stringify(response, null, 2));
@@ -57,17 +65,19 @@ function LoginPage() {
 
       console.log('[LoginPage] ✓ Token found:', token.substring(0, 20) + '...');
       
-      // Update context with user data
+      // Update context with user data and hydrate profile if needed
       console.log('[LoginPage] Updating user context...');
-      updateUser(response);
+      await updateUser(response);
 
-      // Small delay to ensure state updates
-      setTimeout(() => {
-        const targetPath = getPostLoginPath(response?.role || response?.user?.role);
-        console.log('[LoginPage] ✓ Navigating to', targetPath);
-        navigate(targetPath);
-      }, 100);
-      
+      const googleRole =
+        response?.role ||
+        response?.user?.role ||
+        response?.data?.role ||
+        response?.user?.data?.role ||
+        'USER';
+      const targetPath = getPostLoginPath(googleRole);
+      console.log('[LoginPage] ✓ Navigating to', targetPath);
+      navigate(targetPath);
     } catch (e) {
       console.error('[LoginPage] Exception in handleGoogleSuccess:', e);
       setError('Session error. Please try signing in again.');

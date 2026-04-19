@@ -20,6 +20,7 @@ const TicketDetail = () => {
     const [selectedStatus, setSelectedStatus] = useState("");
     const [actionLoading, setActionLoading] = useState(false);
 
+    const resolvedUserId = user?.id ?? user?.userId ?? user?.user?.id ?? null;
     const activeRole = String(user?.role || '').toUpperCase();
     const isAdmin = activeRole === 'ADMIN';
     const isTechnician = activeRole === 'TECHNICIAN';
@@ -74,7 +75,7 @@ const TicketDetail = () => {
         try {
             const commentPayload = {
                 content: newComment,
-                authorId: user?.id || 1, // Uses logged-in user ID, falls back to 1
+                authorId: Number(resolvedUserId || 1), // Uses logged-in user ID, falls back to 1
                 authorName: user?.name || user?.email || "Unknown User"
             };
             await ticketService.addComment(id, commentPayload);
@@ -113,9 +114,13 @@ const TicketDetail = () => {
 
     // Helper to find technician name
     const assignedTechnician = technicians.find(t => String(t.id) === String(ticket?.assigneeId));
+    const isOwner = ticket?.userId && String(ticket.userId) === String(resolvedUserId);
+    const isAssigned = ticket?.assigneeId && String(ticket.assigneeId) === String(resolvedUserId);
+    const canView = isAdmin || isOwner || isAssigned;
 
     if (loading) return <div className="ticket-loading-state">Loading ticket details...</div>;
     if (!ticket) return <div className="ticket-empty-state">Ticket not found!</div>;
+    if (!canView) return <div className="ticket-empty-state">You are not authorized to view this ticket.</div>;
 
     return (
         <div className="ticket-page-wrapper">

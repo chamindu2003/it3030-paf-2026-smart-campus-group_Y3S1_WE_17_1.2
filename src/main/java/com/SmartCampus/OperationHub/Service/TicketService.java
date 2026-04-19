@@ -28,7 +28,10 @@ public class TicketService {
                 .orElseThrow(() -> new RuntimeException("Ticket not found with id: " + id));
     }
 
-    // Add this inside TicketService.java
+    public List<Ticket> getTicketsByUser(Long userId) {
+        return ticketRepository.findByUserId(userId);
+    }
+
     public List<Ticket> getTicketsByAssignee(Long assigneeId) {
         return ticketRepository.findByAssigneeId(assigneeId);
     }

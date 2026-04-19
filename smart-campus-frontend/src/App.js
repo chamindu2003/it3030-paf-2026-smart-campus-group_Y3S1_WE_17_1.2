@@ -47,7 +47,7 @@ function App() {
                         <Route path="/report" element={<div className="container"><TicketForm /></div>} />
                         <Route path="/tickets" element={<ProtectedRoute><TicketList /></ProtectedRoute>} />
                         <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetail /></ProtectedRoute>} />
-                        <Route path="/my-tasks" element={<TechnicianTasks />} />
+                        <Route path="/my-tasks" element={<ProtectedRoute><TechnicianTasks /></ProtectedRoute>} />
 
                         {/* Booking System Routes */}
                         <Route path="/bookings/new" element={<ProtectedRoute><BookingRequestPage /></ProtectedRoute>} />

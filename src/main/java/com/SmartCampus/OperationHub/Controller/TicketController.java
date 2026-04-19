@@ -49,6 +49,12 @@ public class TicketController {
         return new ResponseEntity<>(tickets, HttpStatus.OK);
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Ticket>> getUserTickets(@PathVariable Long userId) {
+        List<Ticket> tickets = ticketService.getTicketsByUser(userId);
+        return new ResponseEntity<>(tickets, HttpStatus.OK);
+    }
+
     // UPDATED: Now perfectly handles the JSON { "status": "IN_PROGRESS" } from React
     @PutMapping("/{id}/status")
     public ResponseEntity<Ticket> updateTicketStatus(

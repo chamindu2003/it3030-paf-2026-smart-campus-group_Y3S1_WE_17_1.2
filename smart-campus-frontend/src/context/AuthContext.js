@@ -2,6 +2,7 @@ import React, { createContext, useState, useCallback, useEffect, useMemo } from 
 import PropTypes from 'prop-types';
 import authService from '../api/authService';
 import axiosInstance from '../api/axiosInstance';
+import { userAPI } from '../api/apiService';
 
 /**
  * AuthContext
@@ -19,26 +20,54 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const hydrateUserProfile = useCallback(async (email, fallbackUser = null) => {
+    if (!email) return null;
+
+    try {
+      const profile = await userAPI.getByEmail(email);
+      const mergedUser = {
+        ...(fallbackUser || {}),
+        ...profile,
+        email,
+      };
+
+      setUser(mergedUser);
+      localStorage.setItem('user', JSON.stringify(mergedUser));
+      return mergedUser;
+    } catch (err) {
+      console.error('[AuthContext] Failed to hydrate user profile for', email, err);
+      return null;
+    }
+  }, []);
+
   /**
    * Initialize auth state from localStorage on mount
    */
   useEffect(() => {
-    const initializeAuth = () => {
+    const initializeAuth = async () => {
       try {
         const storedToken = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
+        const storedUserEmail = localStorage.getItem('userEmail');
 
         if (storedToken) {
           setToken(storedToken);
+          axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
         }
 
+        let parsedUser = null;
         if (storedUser) {
           try {
-            setUser(JSON.parse(storedUser));
+            parsedUser = JSON.parse(storedUser);
+            setUser(parsedUser);
           } catch (e) {
             console.error('Failed to parse stored user:', e);
             localStorage.removeItem('user');
           }
+        }
+
+        if (storedUserEmail && (!parsedUser || !parsedUser.id)) {
+          await hydrateUserProfile(storedUserEmail, parsedUser);
         }
       } catch (err) {
         console.error('Failed to initialize auth:', err);
@@ -48,7 +77,15 @@ export const AuthProvider = ({ children }) => {
     };
 
     initializeAuth();
-  }, []);
+  }, [hydrateUserProfile]);
+
+  useEffect(() => {
+    if (token) {
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+      delete axiosInstance.defaults.headers.common['Authorization'];
+    }
+  }, [token]);
 
   /**
    * Login user with email and password
@@ -65,17 +102,29 @@ export const AuthProvider = ({ children }) => {
 
       // Extract token from response (handle multiple formats)
       const newToken = response?.token || response?.jwt || response?.accessToken;
+      let userData = response;
 
       if (newToken) {
         setToken(newToken);
         localStorage.setItem('token', newToken);
+        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+      }
+
+      if ((!response?.id || !response?.email) && email) {
+        const hydrated = await hydrateUserProfile(email, response);
+        if (hydrated) {
+          userData = hydrated;
+        }
       }
 
       // Set user data
-      setUser(response);
-      localStorage.setItem('user', JSON.stringify(response));
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+      if (userData?.email) {
+        localStorage.setItem('userEmail', userData.email);
+      }
 
-      return response;
+      return userData;
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || 'Login failed';
       setError(errorMessage);
@@ -84,7 +133,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [hydrateUserProfile]);
 
   /**
    * Register new user
@@ -107,11 +156,15 @@ export const AuthProvider = ({ children }) => {
       if (newToken) {
         setToken(newToken);
         localStorage.setItem('token', newToken);
+        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
       }
 
       // Set user data
       setUser(response);
       localStorage.setItem('user', JSON.stringify(response));
+      if (response?.email) {
+        localStorage.setItem('userEmail', response.email);
+      }
 
       return response;
     } catch (err) {
@@ -221,20 +274,29 @@ export const AuthProvider = ({ children }) => {
    * Update user data
    * @param {Object} userData - New user data
    */
-  const updateUser = useCallback((userData) => {
+  const updateUser = useCallback(async (userData) => {
     const newToken = userData?.token || userData?.jwt || userData?.accessToken;
     if (newToken) {
       setToken(newToken);
       localStorage.setItem('token', newToken);
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
     }
 
     if (userData?.email) {
       localStorage.setItem('userEmail', userData.email);
     }
 
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
-  }, []);
+    let finalUserData = userData;
+    if ((!userData?.id || !userData?.userId) && userData?.email) {
+      const hydrated = await hydrateUserProfile(userData.email, userData);
+      if (hydrated) {
+        finalUserData = hydrated;
+      }
+    }
+
+    setUser(finalUserData);
+    localStorage.setItem('user', JSON.stringify(finalUserData));
+  }, [hydrateUserProfile]);
 
   /**
    * Context value

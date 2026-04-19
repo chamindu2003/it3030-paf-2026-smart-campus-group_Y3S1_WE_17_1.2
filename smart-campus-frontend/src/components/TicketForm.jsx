@@ -1,15 +1,28 @@
 import React, { useState } from 'react';
 import { ticketService } from '../ticketService'; // Adjust path if needed
+import { useAuth } from '../hooks/useAuth';
 import '../styles/TicketPages.css';
 
 const TicketForm = () => {
+    const { user } = useAuth();
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('MAINTENANCE');
     const [priority, setPriority] = useState('MEDIUM');
     const [file, setFile] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // ... existing code ...
+    const resolvedUserId = user?.id ?? user?.userId ?? user?.user?.id ?? null;
+
+    if (!resolvedUserId) {
+        return (
+            <div className="ticket-page-wrapper">
+                <div className="ticket-card ticket-empty-state">
+                    <h2 className="ticket-page-title">Login Required</h2>
+                    <p>Please sign in before raising a ticket.</p>
+                </div>
+            </div>
+        );
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,11 +30,15 @@ const TicketForm = () => {
 
         try {
             // 1. Create the Ticket payload using the real dynamic values
+            if (!resolvedUserId) {
+                throw new Error('Unable to determine current user. Please log in and try again.');
+            }
+
             const newTicket = {
-                description: description,
-                category: category,
-                priority: priority,
-                userId: 1, // Dummy user ID
+                description,
+                category,
+                priority,
+                userId: Number(resolvedUserId),
                 resourceId: 1 // Dummy resource ID
             };
 
