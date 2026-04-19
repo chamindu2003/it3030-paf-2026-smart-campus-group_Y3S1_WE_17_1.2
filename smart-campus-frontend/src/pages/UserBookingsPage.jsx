@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { notificationAPI, userAPI } from '../api/apiService';
-import NotificationPanel from '../components/NotificationPanel';
+import { userAPI } from '../api/apiService';
+import UserPortalSidebar from '../components/UserPortalSidebar';
 import { cancelBooking, getBookingsByUserId } from '../api/bookingService';
 import '../styles/userdashboard.css';
 
@@ -22,13 +22,13 @@ function UserBookingsPage() {
   const [profile, setProfile] = useState(user);
   const [userId, setUserId] = useState(null);
   const [bookings, setBookings] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState(null);
   const [error, setError] = useState(null);
-  const [notificationOpen, setNotificationOpen] = useState(false);
 
   const resolvedUserId = useMemo(() => userId, [userId]);
+
+  const activeRole = String(profile?.role || user?.role || '').toUpperCase();
 
   const extractEmailFromToken = useCallback((jwtToken) => {
     if (!jwtToken || typeof jwtToken !== 'string') return null;
@@ -71,18 +71,18 @@ function UserBookingsPage() {
   }, [user]);
 
   const loadBookings = useCallback(async () => {
-    if (!resolvedUserId) return;
+    if (!isAuthenticated) return;
     setLoading(true);
     setError(null);
     try {
-      const data = await getBookingsByUserId(resolvedUserId);
+      const data = await getBookingsByUserId();
       setBookings(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err?.response?.data?.message || err?.message || 'Failed to load bookings');
     } finally {
       setLoading(false);
     }
-  }, [resolvedUserId]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     resolveUserId().catch(() => {});
@@ -92,33 +92,12 @@ function UserBookingsPage() {
     loadBookings().catch(() => {});
   }, [loadBookings]);
 
-  const loadUnreadCount = useCallback(async () => {
-    try {
-      const data = await notificationAPI.getUnreadCount();
-      setUnreadCount(data?.unreadCount || 0);
-    } catch {
-      setUnreadCount(0);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadUnreadCount();
-  }, [loadUnreadCount]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      loadUnreadCount();
-    }, 30000);
-
-    return () => clearInterval(timer);
-  }, [loadUnreadCount]);
-
   const onCancel = async (bookingId) => {
-    if (!resolvedUserId) return;
+    if (!isAuthenticated) return;
     setActionLoadingId(bookingId);
     setError(null);
     try {
-      await cancelBooking(bookingId, resolvedUserId);
+      await cancelBooking(bookingId);
       await loadBookings();
     } catch (err) {
       setError(err?.response?.data?.message || err?.message || 'Failed to cancel booking');
@@ -129,7 +108,7 @@ function UserBookingsPage() {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate('/login');
   };
 
   const userInitials = useMemo(() => {
@@ -169,85 +148,14 @@ function UserBookingsPage() {
   return (
     <div className="userdash-page">
       <div className="userdash-layout">
-        <aside className="userdash-sidebar">
-          <div className="userdash-sidebar-top">
-            <h2 className="userdash-sidebar-title">User Portal</h2>
-            <nav aria-label="User sidebar navigation">
-              <ul className="userdash-sidebar-list">
-                <li>
-                  <button
-                    type="button"
-                    className="userdash-sidebar-item"
-                    onClick={() => navigate('/dashboard')}
-                  >
-                    <span className="userdash-sidebar-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none">
-                        <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.7" />
-                        <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.7" />
-                        <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.7" />
-                        <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.7" />
-                      </svg>
-                    </span>
-                    <span>Overview</span>
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    className="userdash-sidebar-item is-active"
-                  >
-                    <span className="userdash-sidebar-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none">
-                        <rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" strokeWidth="1.7" />
-                        <path d="M8 3.5v3M16 3.5v3M8 11h8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-                      </svg>
-                    </span>
-                    <span>My Bookings</span>
-                    <span className="userdash-sidebar-count">{metrics.total}</span>
-                  </button>
-                </li>
-                <li>
-                  <button type="button" className="userdash-sidebar-item" onClick={() => setNotificationOpen(true)}>
-                    <span className="userdash-sidebar-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none">
-                        <path d="m5 18 4.8-4.8a3.3 3.3 0 0 1 4.6 0l.4.4a3.3 3.3 0 0 1 0 4.6L10 23" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-                        <path d="m14 10 4.8-4.8a3.3 3.3 0 0 1 4.6 0l.4.4a3.3 3.3 0 0 1 0 4.6L19 15" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" transform="translate(-5 -5)" />
-                      </svg>
-                    </span>
-                    <span>Tickets</span>
-                  </button>
-                </li>
-                <li>
-                  <button type="button" className="userdash-sidebar-item" onClick={() => navigate('/user/facilities')}>
-                    <span className="userdash-sidebar-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="none">
-                        <path d="M4 20V9m8 11V4m8 16v-7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-                        <rect x="2.5" y="9" width="3" height="11" rx="1" stroke="currentColor" strokeWidth="1.7" />
-                        <rect x="10.5" y="4" width="3" height="16" rx="1" stroke="currentColor" strokeWidth="1.7" />
-                        <rect x="18.5" y="13" width="3" height="7" rx="1" stroke="currentColor" strokeWidth="1.7" />
-                      </svg>
-                    </span>
-                    <span>Facilities</span>
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          </div>
-
-          <div className="userdash-sidebar-profile">
-            <span className="userdash-avatar">
-              {profile?.profilePicture ? (
-                <img src={profile.profilePicture} alt={displayName} className="userdash-avatar-image" />
-              ) : (
-                userInitials || 'UA'
-              )}
-            </span>
-            <div>
-              <p className="userdash-profile-name">{displayName}</p>
-              <p className="userdash-profile-email">{profile?.email || signedInEmail || user?.email || 'user@example.com'}</p>
-            </div>
-          </div>
-        </aside>
+        <UserPortalSidebar
+          activeItem="bookings"
+          bookingsCount={metrics.total}
+          displayName={displayName}
+          email={profile?.email || signedInEmail || user?.email || 'user@example.com'}
+          profilePicture={profile?.profilePicture}
+          userInitials={userInitials}
+        />
 
         <main className="userdash-shell">
           <header className="userdash-header">
@@ -260,20 +168,6 @@ function UserBookingsPage() {
             <div className="userdash-actions">
               <button
                 type="button"
-                className="userdash-notification-btn"
-                onClick={() => setNotificationOpen(true)}
-                aria-label="Open notifications"
-              >
-                <span className="userdash-bell" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M12 4.5a4 4 0 0 0-4 4v2.1c0 .9-.3 1.8-.9 2.5L6 14.5h12l-1.1-1.4a4 4 0 0 1-.9-2.5V8.5a4 4 0 0 0-4-4Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M10 17.5a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                  </svg>
-                </span>
-                {unreadCount > 0 && <span className="userdash-badge">{unreadCount}</span>}
-              </button>
-              <button
-                type="button"
                 className="userdash-refresh-btn"
                 onClick={() => navigate('/bookings/new')}
               >
@@ -283,7 +177,7 @@ function UserBookingsPage() {
                 type="button"
                 className="userdash-refresh-btn"
                 onClick={loadBookings}
-                disabled={loading || !resolvedUserId}
+                disabled={loading || !isAuthenticated}
               >
                 {loading ? 'Refreshing...' : 'Refresh'}
               </button>
@@ -368,14 +262,6 @@ function UserBookingsPage() {
           </section>
         </main>
       </div>
-
-      <NotificationPanel
-        open={notificationOpen}
-        onClose={() => {
-          setNotificationOpen(false);
-          loadUnreadCount();
-        }}
-      />
     </div>
   );
 }

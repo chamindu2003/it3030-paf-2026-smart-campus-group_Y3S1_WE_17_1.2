@@ -5,13 +5,13 @@ export async function createBooking(booking) {
   return response.data;
 }
 
-export async function getBookingsByUserId(userId) {
-  const response = await axiosInstance.get('/v1/bookings', { params: { userId } });
+export async function getBookingsByUserId() {
+  const response = await axiosInstance.get('/v1/bookings');
   return response.data;
 }
 
-export async function cancelBooking(bookingId, userId) {
-  const response = await axiosInstance.put(`/v1/bookings/${bookingId}/cancel`, { userId });
+export async function cancelBooking(bookingId) {
+  const response = await axiosInstance.put(`/v1/bookings/${bookingId}/cancel`);
   return response.data;
 }
 

@@ -64,14 +64,6 @@ function App() {
               }
             />
             <Route
-              path="/home"
-              element={
-                <ProtectedRoute>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/home/users"
               element={
                 <ProtectedRoute>
@@ -90,13 +82,13 @@ function App() {
               }
             />
 
-            {/* Catch-all redirect */}
-            <Route path="*" element={<Navigate to="/home" replace />} />
-
+            {/* Facility Routes */}
             <Route path="/facilities" element={<FacilitiesList />} />
             <Route path="/facilities/:id" element={<FacilityDetail />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
             <Route path="/user/facilities" element={<FacilitiesPage />} />
+
+            {/* Catch-all redirect */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>
       </Router>

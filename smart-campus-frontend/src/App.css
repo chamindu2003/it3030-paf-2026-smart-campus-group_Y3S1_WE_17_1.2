@@ -408,6 +408,16 @@
   width: 100%;
 }
 
+.booking-identity-note {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #dbe4ff;
+  background: #f6f8ff;
+  color: #2d3f8f;
+  font-size: 13px;
+}
+
 .booking-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
