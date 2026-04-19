@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { ticketService } from '../ticketService'; // Adjust path if needed
 import { userAPI } from '../api/apiService'; // Assuming this exists to fetch users
 import { useAuth } from '../hooks/useAuth';
+import TicketNavBar from '../components/TicketNavBar';
 import '../styles/TicketPages.css';
 
 const TicketDetail = () => {
@@ -124,6 +125,7 @@ const TicketDetail = () => {
 
     return (
         <div className="ticket-page-wrapper">
+            <TicketNavBar currentPage="detail" />
             <h2 className="ticket-page-title">Ticket #{ticket.id}: {ticket.category}</h2>
 
             {(isAdmin || isTechnician) && (

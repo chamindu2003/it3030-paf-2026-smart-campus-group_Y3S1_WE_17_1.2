@@ -1,6 +1,6 @@
 import axiosInstance from './api/axiosInstance';
 
-const API_URL = 'http://localhost:8081/api/tickets';
+const API_URL = '/tickets';
 
 export const ticketService = {
     // 1. Get all tickets

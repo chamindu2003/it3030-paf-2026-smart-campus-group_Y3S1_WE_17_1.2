@@ -274,6 +274,19 @@ export const AuthProvider = ({ children }) => {
    * Update user data
    * @param {Object} userData - New user data
    */
+  const parseTokenPayload = (jwtToken) => {
+    if (!jwtToken) return null;
+    try {
+      const base64Payload = jwtToken.split('.')[1];
+      const normalized = base64Payload?.replace(/-/g, '+').replace(/_/g, '/');
+      const decoded = atob(normalized);
+      return JSON.parse(decoded);
+    } catch (err) {
+      console.warn('[AuthContext] Failed to decode JWT payload:', err);
+      return null;
+    }
+  };
+
   const updateUser = useCallback(async (userData) => {
     const newToken = userData?.token || userData?.jwt || userData?.accessToken;
     if (newToken) {
@@ -282,13 +295,19 @@ export const AuthProvider = ({ children }) => {
       axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
     }
 
-    if (userData?.email) {
-      localStorage.setItem('userEmail', userData.email);
+    let userEmail = userData?.email;
+    if (!userEmail && newToken) {
+      const payload = parseTokenPayload(newToken);
+      userEmail = payload?.email || payload?.sub || userData?.email;
     }
 
-    let finalUserData = userData;
-    if ((!userData?.id || !userData?.userId) && userData?.email) {
-      const hydrated = await hydrateUserProfile(userData.email, userData);
+    if (userEmail) {
+      localStorage.setItem('userEmail', userEmail);
+    }
+
+    let finalUserData = { ...userData, email: userEmail };
+    if ((!finalUserData?.id && !finalUserData?.userId) && userEmail) {
+      const hydrated = await hydrateUserProfile(userEmail, finalUserData);
       if (hydrated) {
         finalUserData = hydrated;
       }

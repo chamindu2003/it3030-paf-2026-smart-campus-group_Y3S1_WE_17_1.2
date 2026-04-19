@@ -44,7 +44,7 @@ function App() {
                         <Route path="/facilities/:id" element={<FacilityDetail />} />
 
                         {/* Ticket System Routes */}
-                        <Route path="/report" element={<div className="container"><TicketForm /></div>} />
+                        <Route path="/report" element={<ProtectedRoute><TicketForm /></ProtectedRoute>} />
                         <Route path="/tickets" element={<ProtectedRoute><TicketList /></ProtectedRoute>} />
                         <Route path="/tickets/:id" element={<ProtectedRoute><TicketDetail /></ProtectedRoute>} />
                         <Route path="/my-tasks" element={<ProtectedRoute><TechnicianTasks /></ProtectedRoute>} />

@@ -1,21 +1,26 @@
 import React, { useState } from 'react';
-import { ticketService } from '../ticketService'; // Adjust path if needed
+import { ticketService } from '../ticketService';
 import { useAuth } from '../hooks/useAuth';
+import TicketNavBar from './TicketNavBar';
 import '../styles/TicketPages.css';
 
 const TicketForm = () => {
     const { user } = useAuth();
-    const [description, setDescription] = useState('');
+    const [resourceId, setResourceId] = useState('1');
     const [category, setCategory] = useState('MAINTENANCE');
     const [priority, setPriority] = useState('MEDIUM');
+    const [description, setDescription] = useState('');
     const [file, setFile] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     const resolvedUserId = user?.id ?? user?.userId ?? user?.user?.id ?? null;
 
     if (!resolvedUserId) {
         return (
             <div className="ticket-page-wrapper">
+                <TicketNavBar currentPage="report" />
                 <div className="ticket-card ticket-empty-state">
                     <h2 className="ticket-page-title">Login Required</h2>
                     <p>Please sign in before raising a ticket.</p>
@@ -24,56 +29,62 @@ const TicketForm = () => {
         );
     }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async (event) => {
+        event.preventDefault();
         setIsSubmitting(true);
+        setErrorMessage('');
+        setSuccessMessage('');
 
         try {
-            // 1. Create the Ticket payload using the real dynamic values
-            if (!resolvedUserId) {
-                throw new Error('Unable to determine current user. Please log in and try again.');
-            }
-
-            const newTicket = {
-                description,
+            const ticketPayload = {
+                userId: Number(resolvedUserId),
+                resourceId: Number(resourceId),
                 category,
                 priority,
-                userId: Number(resolvedUserId),
-                resourceId: 1 // Dummy resource ID
+                description,
             };
 
-            // 2. Save the Ticket to the database
-            const response = await ticketService.createTicket(newTicket);
-            const savedTicketId = response.data.id;
+            const response = await ticketService.createTicket(ticketPayload);
+            const savedTicketId = response?.data?.id;
 
-            // 3. Upload the file if one was selected
-            if (file) {
+            if (file && savedTicketId) {
                 await ticketService.uploadTicketFile(savedTicketId, file);
             }
 
-            alert("Ticket submitted successfully!");
-
-            // Reset the form
+            setSuccessMessage('Ticket submitted successfully.');
             setDescription('');
             setCategory('MAINTENANCE');
             setPriority('MEDIUM');
+            setResourceId('1');
             setFile(null);
-
         } catch (error) {
-            console.error("Error submitting ticket:", error);
-            alert("Failed to submit ticket. Check console for details.");
+            setErrorMessage(error?.response?.data?.message || 'Failed to submit ticket. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
     };
 
-// ... existing code ...
-
     return (
         <div className="ticket-page-wrapper">
+            <TicketNavBar currentPage="report" />
             <div className="ticket-card">
                 <h2 className="ticket-page-title">Submit a New Ticket</h2>
+                {successMessage && <p className="ticket-success-message">{successMessage}</p>}
+                {errorMessage && <p className="ticket-error-message">{errorMessage}</p>}
                 <form onSubmit={handleSubmit} className="ticket-form">
+                    <div className="ticket-form-row">
+                        <label className="ticket-label">Facility</label>
+                        <select
+                            value={resourceId}
+                            onChange={(e) => setResourceId(e.target.value)}
+                            className="ticket-select"
+                        >
+                            <option value="1">Main Hall</option>
+                            <option value="2">Computer Lab</option>
+                            <option value="3">Library</option>
+                            <option value="4">Security Gate</option>
+                        </select>
+                    </div>
 
                     <div className="ticket-form-row">
                         <label className="ticket-label">Category</label>
@@ -84,8 +95,8 @@ const TicketForm = () => {
                         >
                             <option value="MAINTENANCE">Maintenance</option>
                             <option value="IT">IT Support</option>
-                            <option value="CLEANING">Cleaning Services</option>
-                            <option value="SECURITY">Security Incident</option>
+                            <option value="CLEANING">Cleaning</option>
+                            <option value="SECURITY">Security</option>
                         </select>
                     </div>
 
@@ -130,7 +141,7 @@ const TicketForm = () => {
                         disabled={isSubmitting}
                         className="ticket-button ticket-button-primary"
                     >
-                        {isSubmitting ? "Submitting..." : "Submit Ticket"}
+                        {isSubmitting ? 'Submitting...' : 'Submit Ticket'}
                     </button>
                 </form>
             </div>

@@ -27,6 +27,7 @@ class AuthService {
       if (token) {
         console.log('[Email Login] ✓ Token found, storing in localStorage');
         localStorage.setItem('token', token);
+        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       } else {
         console.warn('[Email Login] ⚠ Warning: No token in response');
       }
@@ -152,6 +153,7 @@ class AuthService {
       console.log('[Google Login] ✓ Token received, storing in localStorage');
       // Store JWT token
       localStorage.setItem('token', token);
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       if (emailFromToken) {
         localStorage.setItem('userEmail', emailFromToken);

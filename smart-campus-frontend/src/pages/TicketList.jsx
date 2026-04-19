@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ticketService } from '../ticketService';
 import { useAuth } from '../hooks/useAuth';
+import TicketNavBar from '../components/TicketNavBar';
 import '../styles/TicketPages.css';
 
 const TicketList = () => {
@@ -48,6 +49,7 @@ const TicketList = () => {
 
     return (
         <div className="ticket-page-wrapper">
+            <TicketNavBar currentPage="list" />
             <div className="ticket-card ticket-list-card">
                 <h2 className="ticket-page-title">{title}</h2>
                 {tickets.length === 0 ? (
