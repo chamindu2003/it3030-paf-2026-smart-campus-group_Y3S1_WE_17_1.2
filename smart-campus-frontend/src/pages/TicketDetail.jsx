@@ -72,12 +72,12 @@ const TicketDetail = () => {
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
         if (!newComment.trim()) return;
+        if (!resolvedUserId) return;
 
         try {
             const commentPayload = {
                 content: newComment,
-                authorId: Number(resolvedUserId || 1), // Uses logged-in user ID, falls back to 1
-                authorName: user?.name || user?.email || "Unknown User"
+                authorId: Number(resolvedUserId),
             };
             await ticketService.addComment(id, commentPayload);
             setNewComment("");
@@ -186,7 +186,7 @@ const TicketDetail = () => {
 
             <div className="ticket-card ticket-detail-card ticket-detail-summary">
                 <div className="ticket-detail-meta">
-                    <p><strong>Status:</strong> <span className={`ticket-status-pill ticket-status-${String(ticket.status).toLowerCase().replace(/\s+/g, '-')}`}>{ticket.status}</span></p>
+                    <p><strong>Status:</strong> <span className={`ticket-status-pill ticket-status-${String(ticket.status).toLowerCase().replaceAll(' ', '-')}`}>{ticket.status}</span></p>
                     <p><strong>Priority:</strong> {ticket.priority}</p>
                     {ticket.assigneeId && (
                         <p><strong>Assigned To:</strong> {assignedTechnician ? assignedTechnician.name : `Tech ID: ${ticket.assigneeId}`}</p>

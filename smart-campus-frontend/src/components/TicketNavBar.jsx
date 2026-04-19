@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
@@ -61,6 +62,14 @@ const TicketNavBar = ({ currentPage }) => {
       </div>
     </nav>
   );
+};
+
+TicketNavBar.propTypes = {
+  currentPage: PropTypes.string,
+};
+
+TicketNavBar.defaultProps = {
+  currentPage: '',
 };
 
 export default TicketNavBar;

@@ -10,17 +10,18 @@ const TechnicianTasks = () => {
     const navigate = useNavigate();
     const [assignedTickets, setAssignedTickets] = useState([]);
     const [loading, setLoading] = useState(true);
+    const resolvedUserId = user?.id ?? user?.userId ?? user?.user?.id ?? null;
 
     useEffect(() => {
-        if (user?.id) {
+        if (resolvedUserId) {
             fetchMyTasks();
         }
-    }, [user]);
+    }, [resolvedUserId]);
 
     const fetchMyTasks = async () => {
         try {
             setLoading(true);
-            const response = await ticketService.getAssignedTickets(user.id);
+            const response = await ticketService.getAssignedTickets(resolvedUserId);
             setAssignedTickets(response.data);
         } catch (error) {
             console.error("Error fetching assigned tickets:", error);
@@ -29,7 +30,7 @@ const TechnicianTasks = () => {
         }
     };
 
-    if (!user?.id) {
+    if (!resolvedUserId) {
         return (
             <div className="ticket-page-wrapper">
                 <TicketNavBar currentPage="tasks" />
@@ -76,9 +77,9 @@ const TechnicianTasks = () => {
                             >
                                 <div>
                                     <h3 className="ticket-task-heading">Ticket #{ticket.id} - {ticket.category}</h3>
-                                    <p style={{ margin: 0, color: '#5a6783' }}>{ticket.description.substring(0, 80)}...</p>
+                                    <p style={{ margin: 0, color: '#5a6783' }}>{String(ticket.description || '').slice(0, 80)}...</p>
                                     <div className="ticket-task-meta">
-                                        <span className={`ticket-status-pill ticket-status-${String(ticket.status).toLowerCase().replace(/\s+/g, '-')}`}>
+                                        <span className={`ticket-status-pill ticket-status-${String(ticket.status).toLowerCase().replaceAll(' ', '-')}`}>
                                             {ticket.status}
                                         </span>
                                         <span>Priority: {ticket.priority}</span>

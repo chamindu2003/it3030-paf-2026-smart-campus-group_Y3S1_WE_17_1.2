@@ -70,7 +70,7 @@ const TicketList = () => {
                                     <td>{ticket.id}</td>
                                     <td>{ticket.description}</td>
                                     <td>
-                                        <span className={`ticket-status-pill ticket-status-${String(ticket.status).toLowerCase().replace(/\s+/g, '-')}`}>{ticket.status}</span>
+                                        <span className={`ticket-status-pill ticket-status-${String(ticket.status).toLowerCase().replaceAll(' ', '-')}`}>{ticket.status}</span>
                                     </td>
                                     <td>
                                         <Link to={`/tickets/${ticket.id}`} className="ticket-button ticket-button-secondary">

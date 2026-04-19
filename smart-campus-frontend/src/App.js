@@ -41,7 +41,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
 
-            {/* Protected Routes */}
+            {/* Booking Routes */}
             <Route
               path="/bookings/new"
               element={
@@ -59,7 +59,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            
+
             {/* Admin Routes */}
             <Route
               path="/home"
@@ -77,7 +77,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            
+
             {/* User Routes */}
             <Route
               path="/dashboard"
@@ -89,22 +89,64 @@ function App() {
             />
 
             {/* Facility Routes */}
-            <Route path="/facilities" element={<FacilitiesList />} />
-            <Route path="/facilities/:id" element={<FacilityDetail />} />
-            <Route path="/user/facilities" element={<FacilitiesPage />} />
+            <Route
+              path="/facilities"
+              element={
+                <ProtectedRoute>
+                  <FacilitiesList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/facilities/:id"
+              element={
+                <ProtectedRoute>
+                  <FacilityDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user/facilities"
+              element={
+                <ProtectedRoute>
+                  <FacilitiesPage />
+                </ProtectedRoute>
+              }
+            />
 
-            {/* Catch-all redirect */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-
-            {/* Booking System Routes */}
-            <Route path="/bookings/new" element={<ProtectedRoute><BookingRequestPage /></ProtectedRoute>} />
-            <Route path="/bookings" element={<ProtectedRoute><BookingsLanding /></ProtectedRoute>} />
-            <Route path="/user/facilities" element={<ProtectedRoute><FacilitiesPage /></ProtectedRoute>} />
-
-            {/* Dashboard Routes */}
-            <Route path="/home" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/home/users" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/dashboard" element={<ProtectedRoute><UserDashboard /></ProtectedRoute>} />
+            {/* Ticket Routes */}
+            <Route
+              path="/report"
+              element={
+                <ProtectedRoute>
+                  <TicketForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tickets"
+              element={
+                <ProtectedRoute>
+                  <TicketList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tickets/:id"
+              element={
+                <ProtectedRoute>
+                  <TicketDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-tasks"
+              element={
+                <ProtectedRoute>
+                  <TechnicianTasks />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Catch-all redirect */}
             <Route path="*" element={<Navigate to="/" replace />} />
