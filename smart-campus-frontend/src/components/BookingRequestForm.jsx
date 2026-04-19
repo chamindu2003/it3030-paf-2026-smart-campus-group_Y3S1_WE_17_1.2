@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import axios from 'axios';
 import { useAuth } from '../hooks/useAuth';
 import { createBooking } from '../api/bookingService';
 
@@ -16,14 +17,15 @@ function toLocalTimeISO(date) {
   return `${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
 }
 
-function BookingRequestForm() {
+function BookingRequestForm({ preselectedResourceId = null, preselectedResourceName = null }) {
   const { user } = useAuth();
 
   const signedInEmail = useMemo(() => {
     return user?.email || localStorage.getItem('userEmail') || 'Signed-in user';
   }, [user?.email]);
 
-  const [resourceId, setResourceId] = useState('');
+  const [resourceId, setResourceId] = useState(preselectedResourceId);
+  const [resourceName, setResourceName] = useState(preselectedResourceName || 'Auto-selected');
   const [bookingDate, setBookingDate] = useState(new Date());
   const [startTime, setStartTime] = useState(() => {
     const d = new Date();
@@ -41,6 +43,41 @@ function BookingRequestForm() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+
+  useEffect(() => {
+    if (preselectedResourceId != null) {
+      setResourceId(preselectedResourceId);
+      if (preselectedResourceName) {
+        setResourceName(preselectedResourceName);
+      }
+      return;
+    }
+
+    let cancelled = false;
+
+    const pickDefaultResource = async () => {
+      try {
+        const response = await axios.get('http://localhost:8081/api/facilities');
+        const facilities = Array.isArray(response.data) ? response.data : [];
+        const activeFacility = facilities.find((facility) => facility?.status === 'ACTIVE');
+
+        if (!cancelled && activeFacility?.id != null) {
+          setResourceId(activeFacility.id);
+          setResourceName(activeFacility.name || `Facility #${activeFacility.id}`);
+        }
+      } catch {
+        if (!cancelled) {
+          setError('No available facility found for booking.');
+        }
+      }
+    };
+
+    pickDefaultResource();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [preselectedResourceId, preselectedResourceName]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -84,17 +121,11 @@ function BookingRequestForm() {
         Booking as <strong>{signedInEmail}</strong>. User ID is assigned automatically by the system.
       </div>
 
-      <div className="booking-grid">
-        <label className="booking-field">
-          <span>Resource</span>
-          <select value={resourceId} onChange={(e) => setResourceId(e.target.value)} required>
-            <option value="">Select a resource</option>
-            <option value="1">Resource 1</option>
-            <option value="2">Resource 2</option>
-            <option value="3">Resource 3</option>
-          </select>
-        </label>
+      <div className="booking-identity-note">
+        Resource is selected by the system: <strong>{resourceName || 'Loading...'}</strong>
+      </div>
 
+      <div className="booking-grid">
         <label className="booking-field">
           <span>Date</span>
           <DatePicker

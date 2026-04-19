@@ -178,6 +178,18 @@ function AdminDashboard() {
     navigate('/tickets');
   };
 
+  const goToFacilities = () => {
+    navigate('/facilities');
+  };
+
+  const goToBookings = () => {
+    navigate('/bookings');
+  };
+
+  const goToTickets = () => {
+    navigate('/tickets');
+  };
+
   const adminInitials = useMemo(() => {
     const fullName = profile?.name || user?.name || 'Staff User';
     return fullName

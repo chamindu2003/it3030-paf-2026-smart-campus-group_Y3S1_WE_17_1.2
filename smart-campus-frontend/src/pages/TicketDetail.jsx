@@ -209,7 +209,7 @@ const TicketDetail = () => {
 
             <div className="ticket-card ticket-detail-card ticket-detail-summary">
                 <div className="ticket-detail-meta">
-                    <p><strong>Status:</strong> <span className={`ticket-status-pill ticket-status-${String(ticket.status).toLowerCase().replace(/\s+/g, '-')}`}>{ticket.status}</span></p>
+                    <p><strong>Status:</strong> <span className={`ticket-status-pill ticket-status-${String(ticket.status).toLowerCase().replaceAll(' ', '-')}`}>{ticket.status}</span></p>
                     <p><strong>Priority:</strong> {ticket.priority}</p>
                     {ticket.assigneeId && (
                         <p><strong>Assigned To:</strong> {assignedTechnician ? assignedTechnician.name : `Tech ID: ${ticket.assigneeId}`}</p>

@@ -98,8 +98,9 @@ const TicketForm = () => {
                 {errorMessage && <p className="ticket-error-message">{errorMessage}</p>}
                 <form onSubmit={handleSubmit} className="ticket-form">
                     <div className="ticket-form-row">
-                        <label className="ticket-label">Facility</label>
+                        <label htmlFor="ticket-resource" className="ticket-label">Facility</label>
                         <select
+                            id="ticket-resource"
                             value={resourceId}
                             onChange={(e) => setResourceId(e.target.value)}
                             className="ticket-select"
@@ -112,8 +113,9 @@ const TicketForm = () => {
                     </div>
 
                     <div className="ticket-form-row">
-                        <label className="ticket-label">Category</label>
+                        <label htmlFor="ticket-category" className="ticket-label">Category</label>
                         <select
+                            id="ticket-category"
                             value={category}
                             onChange={(e) => setCategory(e.target.value)}
                             className="ticket-select"
@@ -126,8 +128,9 @@ const TicketForm = () => {
                     </div>
 
                     <div className="ticket-form-row">
-                        <label className="ticket-label">Priority</label>
+                        <label htmlFor="ticket-priority" className="ticket-label">Priority</label>
                         <select
+                            id="ticket-priority"
                             value={priority}
                             onChange={(e) => setPriority(e.target.value)}
                             className="ticket-select"
@@ -140,8 +143,9 @@ const TicketForm = () => {
                     </div>
 
                     <div className="ticket-form-row">
-                        <label className="ticket-label">Description</label>
+                        <label htmlFor="ticket-description" className="ticket-label">Description</label>
                         <textarea
+                            id="ticket-description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             required
@@ -152,8 +156,9 @@ const TicketForm = () => {
                     </div>
 
                     <div className="ticket-form-row">
-                        <label className="ticket-label">Attach Image</label>
+                        <label htmlFor="ticket-file" className="ticket-label">Attach Image</label>
                         <input
+                            id="ticket-file"
                             type="file"
                             onChange={(e) => setFile(e.target.files[0])}
                             accept="image/*"

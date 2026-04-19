@@ -20,15 +20,10 @@ function UserBookingsPage() {
   const { user, token, logout, isAuthenticated } = useAuth();
 
   const [profile, setProfile] = useState(user);
-  const [userId, setUserId] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState(null);
   const [error, setError] = useState(null);
-
-  const resolvedUserId = useMemo(() => userId, [userId]);
-
-  const activeRole = String(profile?.role || user?.role || '').toUpperCase();
 
   const extractEmailFromToken = useCallback((jwtToken) => {
     if (!jwtToken || typeof jwtToken !== 'string') return null;
@@ -53,22 +48,17 @@ function UserBookingsPage() {
     );
   }, [extractEmailFromToken, token, user?.email]);
 
-  const resolveUserId = useCallback(async () => {
-    const candidate = user?.id ?? user?.userId ?? user?.user?.id ?? null;
-    if (candidate != null) {
-      setUserId(Number(candidate));
-      return;
-    }
-
-    if (user?.email) {
+  const loadProfile = useCallback(async () => {
+    if (!user?.email) return;
+    try {
       const data = await userAPI.getByEmail(user.email);
-      const id = data?.id ?? data?.userId ?? null;
-      if (id != null) {
-        setUserId(Number(id));
+      if (data) {
         setProfile(data);
       }
+    } catch {
+      // Fallback to current auth context profile if user-by-email fails.
     }
-  }, [user]);
+  }, [user?.email]);
 
   const loadBookings = useCallback(async () => {
     if (!isAuthenticated) return;
@@ -85,8 +75,8 @@ function UserBookingsPage() {
   }, [isAuthenticated]);
 
   useEffect(() => {
-    resolveUserId().catch(() => {});
-  }, [resolveUserId]);
+    loadProfile().catch(() => {});
+  }, [loadProfile]);
 
   useEffect(() => {
     loadBookings().catch(() => {});
@@ -189,13 +179,6 @@ function UserBookingsPage() {
 
           {error && <div className="userdash-error">{error}</div>}
 
-          {!resolvedUserId && (
-            <div className="userdash-error">
-              <strong>Note:</strong> Couldn&apos;t determine your user id yet. Make sure your user object includes an
-              `id` (or the backend user-by-email endpoint returns one).
-            </div>
-          )}
-
           <section className="userdash-content-grid">
             <article className="userdash-panel" style={{ gridColumn: '1 / -1' }}>
               <div className="userdash-panel-head">
@@ -206,7 +189,6 @@ function UserBookingsPage() {
                 <table className="userdash-table">
                   <thead>
                     <tr>
-                      <th>Resource</th>
                       <th>Date</th>
                       <th>Time</th>
                       <th>Status</th>
@@ -217,7 +199,7 @@ function UserBookingsPage() {
                   <tbody>
                     {bookings.length === 0 && !loading ? (
                       <tr>
-                        <td colSpan="6" className="userdash-empty">No bookings found.</td>
+                        <td colSpan="5" className="userdash-empty">No bookings found.</td>
                       </tr>
                     ) : (
                       bookings.map((b) => {
@@ -226,7 +208,6 @@ function UserBookingsPage() {
 
                         return (
                           <tr key={b.id}>
-                            <td>#{b.resourceId}</td>
                             <td>{b.bookingDate || '-'}</td>
                             <td>
                               {formatTime(b.startTime)} - {formatTime(b.endTime)}
