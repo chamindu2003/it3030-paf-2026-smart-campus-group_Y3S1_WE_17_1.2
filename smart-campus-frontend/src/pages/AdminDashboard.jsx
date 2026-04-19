@@ -162,6 +162,17 @@ function AdminDashboard() {
     navigate('/home/users');
   };
 
+  const goToFacilities = () => {
+    navigate('/facilities');
+  };
+
+  const goToBookings = () => {
+    navigate('/bookings');
+  };
+  const goToTickets = () => {
+    navigate('/tickets');
+  };
+
   const adminInitials = useMemo(() => {
     const fullName = profile?.name || user?.name || 'Admin User';
     return fullName
@@ -288,7 +299,7 @@ function AdminDashboard() {
                   </button>
                 </li>
                 <li>
-                  <button type="button" className="admin-sidebar-item" onClick={goToOverview}>
+                  <button type="button" className="admin-sidebar-item" onClick={goToBookings}>
                     <span className="admin-sidebar-icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
                         <rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" strokeWidth="1.7" />
@@ -300,7 +311,7 @@ function AdminDashboard() {
                   </button>
                 </li>
                 <li>
-                  <button type="button" className="admin-sidebar-item" onClick={goToOverview}>
+                  <button type="button" className="admin-sidebar-item" onClick={goToTickets}>
                     <span className="admin-sidebar-icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
                         <path d="m5 18 4.8-4.8a3.3 3.3 0 0 1 4.6 0l.4.4a3.3 3.3 0 0 1 0 4.6L10 23" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
@@ -312,7 +323,7 @@ function AdminDashboard() {
                   </button>
                 </li>
                 <li>
-                  <button type="button" className="admin-sidebar-item" onClick={goToOverview}>
+                  <button type="button" className="admin-sidebar-item" onClick={goToFacilities}>
                     <span className="admin-sidebar-icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
                         <path d="M4 20V9m8 11V4m8 16v-7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
@@ -634,7 +645,7 @@ function AdminDashboard() {
               <section className="admin-quick-actions">
                 <h2>Quick Actions</h2>
                 <div className="admin-quick-grid">
-                  <button type="button" className="admin-quick-card" onClick={handleRefresh}>
+                  <button type="button" className="admin-quick-card" onClick={goToBookings}>
                     <span className="admin-quick-icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
                         <rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" strokeWidth="1.7" />
@@ -644,7 +655,7 @@ function AdminDashboard() {
                     <span>Bookings</span>
                   </button>
 
-                  <button type="button" className="admin-quick-card" onClick={() => setNotificationOpen(true)}>
+                  <button type="button" className="admin-quick-card" onClick={goToTickets}>
                     <span className="admin-quick-icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
                         <path d="m5 18 4.8-4.8a3.3 3.3 0 0 1 4.6 0l.4.4a3.3 3.3 0 0 1 0 4.6L10 23" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
@@ -654,7 +665,7 @@ function AdminDashboard() {
                     <span>Tickets</span>
                   </button>
 
-                  <button type="button" className="admin-quick-card" onClick={handleRefresh}>
+                  <button type="button" className="admin-quick-card" onClick={goToFacilities}>
                     <span className="admin-quick-icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
                         <path d="M4 20V9m8 11V4m8 16v-7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />

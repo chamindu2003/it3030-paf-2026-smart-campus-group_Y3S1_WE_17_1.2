@@ -182,7 +182,7 @@ function UserDashboard() {
                   </button>
                 </li>
                 <li>
-                  <button type="button" className="userdash-sidebar-item" onClick={() => navigate('/bookings/new')}>
+                  <button type="button" className="userdash-sidebar-item" onClick={() => navigate('/user/facilities')}>
                     <span className="userdash-sidebar-icon" aria-hidden="true">
                       <svg viewBox="0 0 24 24" fill="none">
                         <path d="M4 20V9m8 11V4m8 16v-7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
