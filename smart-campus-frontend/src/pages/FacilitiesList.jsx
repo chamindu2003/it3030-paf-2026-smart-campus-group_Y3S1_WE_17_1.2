@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AddFacilityModal from '../components/AddFacilityModal';
@@ -43,7 +43,7 @@ function FacilitiesList() {
     fetchAllFacilities();
   };
 
-  const loadSidebarMetrics = async () => {
+  const loadSidebarMetrics = useCallback(async () => {
     setSidebarLoading(true);
 
     try {
@@ -76,9 +76,9 @@ function FacilitiesList() {
     } finally {
       setSidebarLoading(false);
     }
-  };
+  }, []);
 
-  const fetchAllFacilities = async () => {
+  const fetchAllFacilities = useCallback(async () => {
     setLoading(true);
     setError('');
 
@@ -91,9 +91,9 @@ function FacilitiesList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchFilteredFacilities = async () => {
+  const fetchFilteredFacilities = useCallback(async () => {
     setLoading(true);
     setError('');
 
@@ -109,13 +109,13 @@ function FacilitiesList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [type, minCapacity, location]);
 
   useEffect(() => {
     fetchAllFacilities();
     loadSidebarMetrics();
     hasMountedRef.current = true;
-  }, []);
+  }, [fetchAllFacilities, loadSidebarMetrics]);
 
   useEffect(() => {
     if (!hasMountedRef.current) {
@@ -123,7 +123,7 @@ function FacilitiesList() {
     }
 
     fetchFilteredFacilities();
-  }, [type, minCapacity, location]);
+  }, [fetchFilteredFacilities]);
 
   const getFacilityId = (facility) => facility.id ?? facility.facilityId ?? '-';
   const getFacilityName = (facility) => facility.name ?? facility.facilityName ?? '-';
@@ -140,28 +140,6 @@ function FacilitiesList() {
     }
 
     return value || '-';
-  };
-
-  const getStartAndEndTime = (facility) => {
-    const availability = getAvailabilityWindows(facility);
-
-    if (!availability || availability === '-') {
-      return { startTime: '-', endTime: '-' };
-    }
-
-    const parts = availability.split(' - ');
-
-    if (parts.length === 2) {
-      return {
-        startTime: parts[0],
-        endTime: parts[1]
-      };
-    }
-
-    return {
-      startTime: availability,
-      endTime: '-'
-    };
   };
 
   const handleOpenEdit = (facility) => {

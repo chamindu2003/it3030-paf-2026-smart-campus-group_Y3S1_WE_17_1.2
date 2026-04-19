@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import EditFacilityModal from '../components/EditFacilityModal';
@@ -15,7 +15,7 @@ function FacilityDetail() {
   const [error, setError] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
 
-  const fetchFacility = async () => {
+  const fetchFacility = useCallback(async () => {
     setLoading(true);
     setError('');
 
@@ -28,11 +28,11 @@ function FacilityDetail() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchFacility();
-  }, [id]);
+  }, [fetchFacility]);
 
   const handleBack = () => {
     navigate('/facilities');

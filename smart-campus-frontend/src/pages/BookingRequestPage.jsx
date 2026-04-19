@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import BookingRequestForm from '../components/BookingRequestForm';
 import UserPortalSidebar from '../components/UserPortalSidebar';
 import { useAuth } from '../hooks/useAuth';
@@ -6,7 +6,10 @@ import '../styles/userdashboard.css';
 
 function BookingRequestPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
+  const selectedResourceId = location.state?.resourceId ?? null;
+  const selectedResourceName = location.state?.resourceName ?? null;
 
   const signedInEmail = user?.email || localStorage.getItem('userEmail') || 'user@example.com';
   const displayName = user?.name || signedInEmail.split('@')[0] || 'User';
@@ -55,7 +58,10 @@ function BookingRequestPage() {
           </header>
 
           <section className="userdash-panel" style={{ maxWidth: '980px' }}>
-            <BookingRequestForm />
+            <BookingRequestForm
+              preselectedResourceId={selectedResourceId}
+              preselectedResourceName={selectedResourceName}
+            />
           </section>
         </main>
       </div>

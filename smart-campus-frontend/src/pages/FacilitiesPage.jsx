@@ -61,7 +61,12 @@ const FacilitiesPage = () => {
 
   const handleBookNow = (facility) => {
     if (facility?.status === "ACTIVE") {
-      navigate('/bookings/new');
+      navigate('/bookings/new', {
+        state: {
+          resourceId: facility.id,
+          resourceName: facility.name,
+        },
+      });
     }
   };
 
