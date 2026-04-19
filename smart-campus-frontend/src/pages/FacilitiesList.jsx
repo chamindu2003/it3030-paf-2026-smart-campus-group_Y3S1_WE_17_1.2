@@ -395,7 +395,7 @@ function FacilitiesList() {
                           <td>{getFacilityLocation(facility)}</td>
                           <td>{getAvailabilityWindows(facility)}</td>
                           <td>
-                            <span className={`status-badge ${isActive ? 'status-active' : 'status-out'}`}>
+                            <span className={`facility-status-badge ${isActive ? 'facility-status-active' : 'facility-status-out'}`}>
                               {status}
                             </span>
                           </td>

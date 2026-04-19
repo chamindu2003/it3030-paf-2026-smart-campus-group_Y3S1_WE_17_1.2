@@ -111,7 +111,7 @@
   background: #d9e9ff;
 }
 
-.status-badge {
+.facility-status-badge {
   display: inline-block;
   border-radius: 999px;
   padding: 4px 10px;
@@ -119,12 +119,12 @@
   font-weight: 700;
 }
 
-.status-active {
+.facility-status-active {
   background: #2ecc71;
   color: var(--white);
 }
 
-.status-out {
+.facility-status-out {
   background: #e74c3c;
   color: var(--white);
 }
