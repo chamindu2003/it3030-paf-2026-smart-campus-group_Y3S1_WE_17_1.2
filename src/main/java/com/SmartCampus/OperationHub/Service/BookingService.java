@@ -1,7 +1,10 @@
 package com.SmartCampus.OperationHub.Service;
 
+import com.SmartCampus.OperationHub.Enums.FacilityStatus;
 import com.SmartCampus.OperationHub.Model.Booking;
+import com.SmartCampus.OperationHub.Model.Facility;
 import com.SmartCampus.OperationHub.Repository.BookingRepository;
+import com.SmartCampus.OperationHub.Repository.FacilityRepository;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -13,14 +16,24 @@ import org.springframework.util.StringUtils;
 public class BookingService {
 
     private final BookingRepository bookingRepository;
+    private final FacilityRepository facilityRepository;
     private final NotificationService notificationService;
 
-    public BookingService(BookingRepository bookingRepository, NotificationService notificationService) {
+    public BookingService(BookingRepository bookingRepository,
+                          FacilityRepository facilityRepository,
+                          NotificationService notificationService) {
         this.bookingRepository = bookingRepository;
+        this.facilityRepository = facilityRepository;
         this.notificationService = notificationService;
     }
 
-    public Booking createBooking(Booking booking) {
+    public Booking createBooking(Booking booking, Long authenticatedUserId) {
+        if (authenticatedUserId == null) {
+            throw new IllegalArgumentException("Authenticated user is required");
+        }
+
+        // Never trust userId from the client payload.
+        booking.setUserId(authenticatedUserId);
         validateBookingForCreate(booking);
 
         boolean hasOverlap = !bookingRepository
@@ -157,9 +170,16 @@ public class BookingService {
         if (booking.getResourceId() == null) {
             throw new IllegalArgumentException("resourceId is required");
         }
-        if (booking.getUserId() == null) {
-            throw new IllegalArgumentException("userId is required");
+
+        // Validate that the referenced facility exists and is ACTIVE
+        Facility facility = facilityRepository.findById(booking.getResourceId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Facility not found with id: " + booking.getResourceId()));
+        if (facility.getStatus() != FacilityStatus.ACTIVE) {
+            throw new IllegalStateException(
+                    "Facility '" + facility.getName() + "' is not available for booking (status: " + facility.getStatus() + ")");
         }
+
         LocalDate date = booking.getBookingDate();
         LocalTime start = booking.getStartTime();
         LocalTime end = booking.getEndTime();

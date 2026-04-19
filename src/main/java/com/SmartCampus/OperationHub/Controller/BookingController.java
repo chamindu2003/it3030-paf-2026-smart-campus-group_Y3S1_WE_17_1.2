@@ -3,9 +3,12 @@ package com.SmartCampus.OperationHub.Controller;
 import com.SmartCampus.OperationHub.DTO.CancelBookingRequest;
 import com.SmartCampus.OperationHub.DTO.UpdateBookingStatusRequest;
 import com.SmartCampus.OperationHub.Model.Booking;
+import com.SmartCampus.OperationHub.Model.UserModel;
+import com.SmartCampus.OperationHub.Repository.UserRepo;
 import com.SmartCampus.OperationHub.Service.BookingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,9 +27,11 @@ import java.util.List;
 public class BookingController {
 
     private final BookingService bookingService;
+    private final UserRepo userRepo;
 
-    public BookingController(BookingService bookingService) {
+    public BookingController(BookingService bookingService, UserRepo userRepo) {
         this.bookingService = bookingService;
+        this.userRepo = userRepo;
     }
 
     @GetMapping("/all")
@@ -35,9 +40,10 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createBooking(@RequestBody Booking booking) {
+    public ResponseEntity<?> createBooking(@RequestBody Booking booking, Authentication authentication) {
         try {
-            Booking created = bookingService.createBooking(booking);
+            Long authenticatedUserId = resolveAuthenticatedUserId(authentication);
+            Booking created = bookingService.createBooking(booking, authenticatedUserId);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -45,9 +51,10 @@ public class BookingController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getBookings(@RequestParam("userId") Long userId) {
+    public ResponseEntity<?> getBookings(Authentication authentication) {
         try {
-            List<Booking> bookings = bookingService.getBookingsForUser(userId);
+            Long authenticatedUserId = resolveAuthenticatedUserId(authentication);
+            List<Booking> bookings = bookingService.getBookingsForUser(authenticatedUserId);
             return ResponseEntity.ok(bookings);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -74,10 +81,12 @@ public class BookingController {
     @PutMapping("/{id}/cancel")
     public ResponseEntity<?> cancelBooking(
             @PathVariable("id") Long bookingId,
-            @RequestBody CancelBookingRequest request
+            @RequestBody(required = false) CancelBookingRequest request,
+            Authentication authentication
     ) {
         try {
-            Booking cancelled = bookingService.cancelBooking(bookingId, request.getUserId());
+            Long authenticatedUserId = resolveAuthenticatedUserId(authentication);
+            Booking cancelled = bookingService.cancelBooking(bookingId, authenticatedUserId);
             return ResponseEntity.ok(cancelled);
         } catch (SecurityException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
@@ -104,6 +113,17 @@ public class BookingController {
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    private Long resolveAuthenticatedUserId(Authentication authentication) {
+        if (authentication == null || authentication.getName() == null) {
+            throw new IllegalArgumentException("Authenticated user is required");
+        }
+
+        String email = authentication.getName();
+        UserModel user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found"));
+        return user.getId();
     }
 }
 

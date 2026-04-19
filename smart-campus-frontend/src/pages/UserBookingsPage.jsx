@@ -71,18 +71,18 @@ function UserBookingsPage() {
   }, [user]);
 
   const loadBookings = useCallback(async () => {
-    if (!resolvedUserId) return;
+    if (!isAuthenticated) return;
     setLoading(true);
     setError(null);
     try {
-      const data = await getBookingsByUserId(resolvedUserId);
+      const data = await getBookingsByUserId();
       setBookings(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err?.response?.data?.message || err?.message || 'Failed to load bookings');
     } finally {
       setLoading(false);
     }
-  }, [resolvedUserId]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     resolveUserId().catch(() => {});
@@ -93,11 +93,11 @@ function UserBookingsPage() {
   }, [loadBookings]);
 
   const onCancel = async (bookingId) => {
-    if (!resolvedUserId) return;
+    if (!isAuthenticated) return;
     setActionLoadingId(bookingId);
     setError(null);
     try {
-      await cancelBooking(bookingId, resolvedUserId);
+      await cancelBooking(bookingId);
       await loadBookings();
     } catch (err) {
       setError(err?.response?.data?.message || err?.message || 'Failed to cancel booking');
@@ -177,7 +177,7 @@ function UserBookingsPage() {
                 type="button"
                 className="userdash-refresh-btn"
                 onClick={loadBookings}
-                disabled={loading || !resolvedUserId}
+                disabled={loading || !isAuthenticated}
               >
                 {loading ? 'Refreshing...' : 'Refresh'}
               </button>
