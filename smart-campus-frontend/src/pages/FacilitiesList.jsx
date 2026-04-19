@@ -130,7 +130,16 @@ function FacilitiesList() {
   const getFacilityType = (facility) => facility.type ?? '-';
   const getFacilityCapacity = (facility) => facility.capacity ?? '-';
   const getFacilityLocation = (facility) => facility.location ?? '-';
-  const getFacilityStatus = (facility) => facility.status ?? 'UNKNOWN';
+  const getFacilityStatus = (facility) => {
+    const rawStatus = facility?.status ?? facility?.facilityStatus ?? facility?.availabilityStatus;
+
+    if (typeof rawStatus === 'string') {
+      const normalized = rawStatus.trim().toUpperCase();
+      return normalized || 'ACTIVE';
+    }
+
+    return rawStatus ?? 'ACTIVE';
+  };
 
   const getAvailabilityWindows = (facility) => {
     const value = facility.availabilityWindows ?? facility.availabilityWindow ?? facility.availability;
@@ -140,28 +149,6 @@ function FacilitiesList() {
     }
 
     return value || '-';
-  };
-
-  const getStartAndEndTime = (facility) => {
-    const availability = getAvailabilityWindows(facility);
-
-    if (!availability || availability === '-') {
-      return { startTime: '-', endTime: '-' };
-    }
-
-    const parts = availability.split(' - ');
-
-    if (parts.length === 2) {
-      return {
-        startTime: parts[0],
-        endTime: parts[1]
-      };
-    }
-
-    return {
-      startTime: availability,
-      endTime: '-'
-    };
   };
 
   const handleOpenEdit = (facility) => {
@@ -175,7 +162,9 @@ function FacilitiesList() {
       return;
     }
 
-    const shouldDelete = window.confirm('Are you sure you want to delete this facility?');
+    const shouldDelete = document.defaultView
+      ? document.defaultView.confirm('Are you sure you want to delete this facility?')
+      : false;
 
     if (!shouldDelete) {
       return;
