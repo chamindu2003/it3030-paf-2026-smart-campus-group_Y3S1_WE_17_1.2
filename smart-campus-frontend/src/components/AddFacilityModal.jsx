@@ -101,7 +101,7 @@ function AddFacilityModal({ onClose, onSuccess }) {
     <div className="add-facility-modal-overlay">
       <div className="add-facility-modal-box" role="dialog" aria-modal="true" aria-label="Add New Facility">
         <div className="add-facility-modal-header">
-          <h3 className="add-facility-modal-title">Add New Facility</h3>
+          <h3 className="add-facility-modal-title">New Facility</h3>
           <button type="button" className="add-facility-close-btn" onClick={onClose} aria-label="Close modal">
             X
           </button>
