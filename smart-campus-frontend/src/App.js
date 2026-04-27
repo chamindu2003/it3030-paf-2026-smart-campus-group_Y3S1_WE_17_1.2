@@ -3,11 +3,32 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import './App.css';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import HomePage from './pages/HomePage';
+import LandingPage from './pages/LandingPage';
+import AdminDashboard from './pages/AdminDashboard';
+import UserDashboard from './pages/UserDashboard';
+import { useAuth } from './hooks/useAuth';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
+import FacilitiesList from './pages/FacilitiesList';
+import FacilityDetail from './pages/FacilityDetail';
+import FacilitiesPage from './pages/FacilitiesPage';
+import BookingRequestPage from './pages/BookingRequestPage';
+import UserBookingsPage from './pages/UserBookingsPage';
+import AdminBookingPage from './pages/AdminBookingPage';
 
-const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || '584522305897-e4imhiui27j808mdctedqalbf3bc605e.apps.googleusercontent.com';
+// TICKET SYSTEM IMPORTS
+import TicketForm from './components/TicketForm';
+import TicketList from './pages/TicketList';
+import TicketDetail from './pages/TicketDetail';
+import TechnicianTasks from './pages/TechnicianTasks'; // Adjust the path based on where you saved it
+
+const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || 'your-google-client-id-here';
+
+function BookingsLanding() {
+  const { user } = useAuth();
+  const role = String(user?.role || '').trim().toUpperCase();
+  return role === 'ADMIN' ? <AdminBookingPage /> : <UserBookingsPage />;
+}
 
 function App() {
   return (
@@ -16,24 +37,119 @@ function App() {
         <AuthProvider>
           <Routes>
             {/* Public Routes */}
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
 
-            {/* Protected Routes */}
+            {/* Booking Routes */}
             <Route
-              path="/home"
+              path="/bookings/new"
               element={
                 <ProtectedRoute>
-                  <HomePage />
+                  <BookingRequestPage />
                 </ProtectedRoute>
               }
             />
 
-            {/* Root redirect */}
-            <Route path="/" element={<Navigate to="/home" replace />} />
+            <Route
+              path="/bookings"
+              element={
+                <ProtectedRoute>
+                  <BookingsLanding />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin Routes */}
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/home/users"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* User Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <UserDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Facility Routes */}
+            <Route
+              path="/facilities"
+              element={
+                <ProtectedRoute>
+                  <FacilitiesList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/facilities/:id"
+              element={
+                <ProtectedRoute>
+                  <FacilityDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user/facilities"
+              element={
+                <ProtectedRoute>
+                  <FacilitiesPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Ticket Routes */}
+            <Route
+              path="/report"
+              element={
+                <ProtectedRoute>
+                  <TicketForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tickets"
+              element={
+                <ProtectedRoute>
+                  <TicketList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tickets/:id"
+              element={
+                <ProtectedRoute>
+                  <TicketDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-tasks"
+              element={
+                <ProtectedRoute>
+                  <TechnicianTasks />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Catch-all redirect */}
-            <Route path="*" element={<Navigate to="/home" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>
       </Router>

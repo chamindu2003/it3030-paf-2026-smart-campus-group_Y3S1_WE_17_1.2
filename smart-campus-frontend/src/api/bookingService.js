@@ -1,0 +1,38 @@
+import axiosInstance from './axiosInstance';
+
+export async function createBooking(booking) {
+  const response = await axiosInstance.post('/v1/bookings', booking);
+  return response.data;
+}
+
+export async function getBookingsByUserId() {
+  const response = await axiosInstance.get('/v1/bookings');
+  return response.data;
+}
+
+export async function cancelBooking(bookingId) {
+  const response = await axiosInstance.put(`/v1/bookings/${bookingId}/cancel`);
+  return response.data;
+}
+
+export async function adminSearchBookings({ userId, resourceId, status, actingRole }) {
+  const response = await axiosInstance.get('/v1/bookings/admin', {
+    params: {
+      userId: userId || undefined,
+      resourceId: resourceId || undefined,
+      status: status || undefined,
+      actingRole,
+    },
+  });
+  return response.data;
+}
+
+export async function adminUpdateBookingStatus(bookingId, { status, rejectionReason, actingRole }) {
+  const response = await axiosInstance.put(`/v1/bookings/${bookingId}/status`, {
+    status,
+    rejectionReason: rejectionReason || null,
+    actingRole,
+  });
+  return response.data;
+}
+

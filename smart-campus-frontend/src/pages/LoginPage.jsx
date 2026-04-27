@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import GoogleSignInButton from '../components/GoogleSignInButton';
+import logo from '../Assets/Smart Campus Logo.png';
 import '../styles/login.css';
 
 /**
@@ -10,17 +11,30 @@ import '../styles/login.css';
  */
 function LoginPage() {
   const [email, setEmail] = React.useState('admin@example.com');
-  const [password, setPassword] = React.useState('admin123');
+  const [password, setPassword] = React.useState('ChangeMeAdmin@2026');
   const [rememberMe, setRememberMe] = React.useState(true);
-  const { login, error, loading, clearError, setError } = useAuth();
+  const { login, error, loading, clearError, setError, updateUser, user } = useAuth();
   const navigate = useNavigate();
+
+  const getPostLoginPath = (roleValue) => {
+    const normalizedRole = String(roleValue || '').trim().toUpperCase();
+    return normalizedRole === 'ADMIN' ? '/home' : '/dashboard';
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     clearError();
 
     try {
-      await login(email, password);
+      const response = await login(email, password);
+
+      const roleFromResponse =
+        response?.role ||
+        response?.user?.role ||
+        response?.data?.role ||
+        response?.user?.data?.role ||
+        user?.role ||
+        'USER';
 
       // Optional: if user doesn't want remember-me, clear persisted token/user.
       // (Your current auth flow already stores token; this just respects the checkbox.)
@@ -28,17 +42,46 @@ function LoginPage() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       }
-      // Navigate to home on success
-      navigate('/home');
+      navigate(getPostLoginPath(roleFromResponse));
     } catch (err) {
       // Error is handled by useAuth hook
       console.error('Login failed:', err);
     }
   };
 
-  const handleGoogleSuccess = (response) => {
-    console.log('Google login successful');
-    navigate('/home');
+  const handleGoogleSuccess = async (response) => {
+    try {
+      console.log('[LoginPage] Google login success handler called');
+      console.log('[LoginPage] Full response:', JSON.stringify(response, null, 2));
+      
+      // Extract token from response
+      const token = response?.token;
+      
+      if (!token) {
+        console.error('[LoginPage] ✗ No token received in response');
+        setError('Login failed: No authentication token received.');
+        return;
+      }
+
+      console.log('[LoginPage] ✓ Token found:', token.substring(0, 20) + '...');
+      
+      // Update context with user data and hydrate profile if needed
+      console.log('[LoginPage] Updating user context...');
+      await updateUser(response);
+
+      const googleRole =
+        response?.role ||
+        response?.user?.role ||
+        response?.data?.role ||
+        response?.user?.data?.role ||
+        'USER';
+      const targetPath = getPostLoginPath(googleRole);
+      console.log('[LoginPage] ✓ Navigating to', targetPath);
+      navigate(targetPath);
+    } catch (e) {
+      console.error('[LoginPage] Exception in handleGoogleSuccess:', e);
+      setError('Session error. Please try signing in again.');
+    }
   };
 
   const handleGoogleError = (error) => {
@@ -48,114 +91,115 @@ function LoginPage() {
 
   return (
     <div className="login-page">
-      <header className="login-header">
-        <h1 className="login-title">Smart Campus Hub</h1>
-        <p className="login-subtitle">Sign in to manage campus operations</p>
-      </header>
-
       <main className="login-content">
-        <section className="login-card">
-          {error && (
-            <div className="login-error">
-              <p>{error}</p>
-              <button type="button" onClick={clearError} aria-label="Dismiss error">✕</button>
-            </div>
-          )}
-
-          <form className="login-form" onSubmit={handleLogin}>
-            <div className="login-field">
-              <label htmlFor="email">Email address</label>
-              <div className="login-input">
-                <svg className="login-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M4 6.5h16v11H4v-11Z" stroke="currentColor" strokeWidth="1.6" />
-                  <path d="m4 7 8 6 8-6" stroke="currentColor" strokeWidth="1.6" />
-                </svg>
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="you@campus.edu"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={loading}
-                  required
-                  autoComplete="email"
-                />
+        <section className="login-shell">
+          <aside className="login-brand-panel">
+            <div className="brand-top">
+              <div className="brand-badge">
+                <img src={logo} alt="Smart Campus logo" className="brand-logo" />
+              </div>
+              <div>
+                <h1 className="brand-name">Smart Campus</h1>
+                <p className="brand-mini">Operations Hub Access</p>
               </div>
             </div>
 
-            <div className="login-field">
-              <label htmlFor="password">Password</label>
-              <div className="login-input">
-                <svg className="login-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path
-                    d="M7.5 11V8.5a4.5 4.5 0 0 1 9 0V11"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M6.5 11h11a1.5 1.5 0 0 1 1.5 1.5v6A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-6A1.5 1.5 0 0 1 6.5 11Z"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                  />
-                </svg>
-                <input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
-                  required
-                  autoComplete="current-password"
-                />
+            <span className="brand-pill">Trusted campus workflow platform</span>
+
+            <h2 className="brand-title">Secure Access for Better Campus Operations</h2>
+            <p className="brand-copy">
+              Manage bookings, maintenance requests, and service updates in one professional dashboard.
+            </p>
+
+            <div className="brand-feature-grid">
+              <span>JWT secured authentication</span>
+              <span>Role-based platform access</span>
+              <span>Facility workflow ready</span>
+              <span>Auditable activity logs</span>
+            </div>
+
+            <div className="brand-tags">
+              <span>ISO-ready</span>
+              <span>24/7 support</span>
+              <span>Encrypted data</span>
+            </div>
+          </aside>
+
+          <section className="login-card" aria-label="Sign in form">
+            <h2 className="form-title">Welcome back</h2>
+            <p className="form-subtitle">Sign in to continue managing campus operations and workflows.</p>
+
+            {error && (
+              <div className="login-error">
+                <p>{error}</p>
+                <button type="button" onClick={clearError} aria-label="Dismiss error">✕</button>
               </div>
-            </div>
+            )}
 
-            <div className="login-row">
-              <label className="login-remember">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  disabled={loading}
-                />
-                Remember me
-              </label>
-
-              {/* If you implement a forgot-password route later, change this Link target */}
-              <Link className="login-link" to="#" onClick={(e) => e.preventDefault()}>
-                Forgot password?
-              </Link>
-            </div>
-
-            <button className="login-submit" type="submit" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign in'}
-              {!loading && (
-                <svg className="login-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M5 12h12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                  <path
-                    d="m13 6 6 6-6 6"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+            <form className="login-form" onSubmit={handleLogin}>
+              <div className="login-field">
+                <label htmlFor="email">Email</label>
+                <div className="login-input">
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="you@campus.edu"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={loading}
+                    required
+                    autoComplete="email"
                   />
-                </svg>
-              )}
-            </button>
-          </form>
+                </div>
+              </div>
 
-          <div className="login-divider">Or continue with</div>
+              <div className="login-field">
+                <label htmlFor="password">Password</label>
+                <div className="login-input">
+                  <input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
+                    required
+                    autoComplete="current-password"
+                  />
+                </div>
+              </div>
 
-          <div className="login-oauth">
-            <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
-          </div>
+              <div className="login-row">
+                <label className="login-remember">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    disabled={loading}
+                  />
+                  <span>Remember me</span>
+                </label>
 
-          <div className="login-footer">
-            Don&apos;t have an account? <Link to="/signup">Sign up</Link>
-          </div>
+                <Link className="login-link" to="#" onClick={(e) => e.preventDefault()}>
+                  Forgot password?
+                </Link>
+              </div>
 
+              <button className="login-submit" type="submit" disabled={loading}>
+                {loading ? 'Signing in...' : 'Sign In'}
+              </button>
+            </form>
+
+            <div className="login-divider">Or continue with</div>
+
+            <div className="login-oauth">
+              <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
+            </div>
+
+            <div className="login-footer">
+              Don&apos;t have an account? <Link to="/signup">Create one</Link>
+            </div>
+          </section>
         </section>
       </main>
     </div>

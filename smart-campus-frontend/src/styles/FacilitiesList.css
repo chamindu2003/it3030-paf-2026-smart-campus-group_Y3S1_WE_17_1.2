@@ -1,0 +1,185 @@
+:root {
+  --sidebar-header-bg: #1B224B;
+  --card-header-bg: #2C3991;
+  --accent-color: #F39C12;
+  --page-bg: #2D3436;
+  --text-border: #B2BEC3;
+  --white: #ffffff;
+}
+
+.facilities-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 304px minmax(0, 1fr);
+  background: radial-gradient(circle at top right, #f8f9fc 0%, #eef2f8 52%, #e8edf6 100%);
+  color: #1b224b;
+}
+
+.facilities-main {
+  flex: 1;
+  background: #ffffff;
+  padding: 24px;
+  margin: 22px;
+  border: 1px solid #dde4f2;
+  border-radius: 18px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-sizing: border-box;
+}
+
+.facilities-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.page-title {
+  margin: 0;
+  color: #1b224b;
+}
+
+.add-facility-btn {
+  background: var(--accent-color);
+  border: 1px solid var(--accent-color);
+  color: var(--white);
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.filters-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.filter-input {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid var(--text-border);
+  color: #1b224b;
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+}
+
+.filter-input::placeholder {
+  color: var(--text-border);
+}
+
+.table-card {
+  border: 1px solid var(--text-border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #eaf3ff;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.facilities-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #eaf3ff;
+  color: #1b224b;
+}
+
+.facilities-table thead tr {
+  background: #eef2f6;
+}
+
+.facilities-table thead th {
+  color: #1b224b;
+}
+
+.facilities-table th,
+.facilities-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--text-border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.facilities-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.facilities-table tbody tr:hover {
+  background: #d9e9ff;
+}
+
+.facility-status-badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.facility-status-active {
+  background: #2ecc71;
+  color: var(--white);
+}
+
+.facility-status-out {
+  background: #e74c3c;
+  color: var(--white);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.action-btn {
+  border: none;
+  color: var(--white);
+  border-radius: 7px;
+  padding: 6px 9px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.btn-edit {
+  background: var(--card-header-bg);
+}
+
+.btn-delete {
+  background: #e74c3c;
+}
+
+.btn-change-status {
+  background: var(--accent-color);
+}
+
+.status-text {
+  color: #1b224b;
+}
+
+.error-text {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.empty-cell {
+  text-align: center;
+  color: var(--text-border);
+}
+
+@media (max-width: 900px) {
+  .facilities-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .filters-row {
+    grid-template-columns: 1fr;
+  }
+
+  .facilities-main {
+    padding: 16px;
+    margin: 12px;
+  }
+}
