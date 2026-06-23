@@ -54,7 +54,7 @@ function BookingRequestForm({ preselectedResourceId = null, preselectedResourceN
     }
 
     let cancelled = false;
-
+//Call the API to get the list of facilities and pick the first active one as the default resource for booking. This is a fallback mechanism in case no preselected resource is provided via props. The selected resource's ID and name are set in the component state for use in the booking form.
     const pickDefaultResource = async () => {
       try {
         const response = await axios.get('http://localhost:8081/api/facilities');

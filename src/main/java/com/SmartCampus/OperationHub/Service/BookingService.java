@@ -32,10 +32,11 @@ public class BookingService {
             throw new IllegalArgumentException("Authenticated user is required");
         }
 
-        // Never trust userId from the client payload.
+        
         booking.setUserId(authenticatedUserId);
+        //Calls the Validation method to check if the booking request is valid before proceeding with the creation o
         validateBookingForCreate(booking);
-
+        //calls the overlap query
         boolean hasOverlap = !bookingRepository
                 .findOverlappingBookings(
                         booking.getResourceId(),
@@ -44,7 +45,7 @@ public class BookingService {
                         booking.getEndTime()
                 )
                 .isEmpty();
-
+         //reject booking if there is an overlap with an existing booking (regardless of status)       
         if (hasOverlap) {
             throw new IllegalStateException("Booking conflicts with an existing booking");
         }

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import AdminPortalSidebar from '../components/AdminPortalSidebar';
 import { adminSearchBookings, adminUpdateBookingStatus } from '../api/bookingService';
+import { userAPI } from '../api/apiService';
+import axiosInstance from '../api/axiosInstance';
 import '../styles/adminDashboard.css';
 
 function normalizeStatus(status) {
@@ -26,8 +28,11 @@ function AdminBookingPage() {
 
   const isAdmin = normalizeStatus(user?.role) === 'ADMIN';
 
-  const [filters, setFilters] = useState({ userId: '', resourceId: '', status: '' });
-  const [bookings, setBookings] = useState([]);
+  const [filterInputs, setFilterInputs] = useState({ userName: '', resourceName: '', status: '' });
+  const [filters, setFilters] = useState({ userName: '', resourceName: '', status: '' });
+  const [allBookings, setAllBookings] = useState([]);
+  const [usersById, setUsersById] = useState({});
+  const [resourcesById, setResourcesById] = useState({});
   const [loading, setLoading] = useState(false);
   const [actionId, setActionId] = useState(null);
   const [error, setError] = useState(null);
@@ -43,43 +48,88 @@ function AdminBookingPage() {
     .map((part) => part[0]?.toUpperCase())
     .join('');
 
-  const approvedBookings = useMemo(
-    () => bookings.filter((b) => normalizeStatus(b.status) === 'APPROVED'),
-    [bookings]
+  const getUserName = useCallback(
+    (userId) => usersById[userId] || `User #${userId ?? 'N/A'}`,
+    [usersById]
   );
+
+  const getResourceName = useCallback(
+    (resourceId) => resourcesById[resourceId] || `Resource #${resourceId ?? 'N/A'}`,
+    [resourcesById]
+  );
+
+  const approvedBookings = useMemo(
+    () => allBookings.filter((b) => normalizeStatus(b.status) === 'APPROVED'),
+    [allBookings]
+  );
+
+  const bookings = useMemo(() => {
+    const userFilter = filters.userName.trim().toLowerCase();
+    const resourceFilter = filters.resourceName.trim().toLowerCase();
+    const statusFilter = normalizeStatus(filters.status);
+
+    return allBookings.filter((booking) => {
+      const matchesStatus = !statusFilter || normalizeStatus(booking.status) === statusFilter;
+      const matchesUser = !userFilter || getUserName(booking.userId).toLowerCase().includes(userFilter);
+      const matchesResource = !resourceFilter || getResourceName(booking.resourceId).toLowerCase().includes(resourceFilter);
+      return matchesStatus && matchesUser && matchesResource;
+    });
+  }, [allBookings, filters, getUserName, getResourceName]);
 
   const conflictIds = useMemo(() => {
     const ids = new Set();
-    for (const b of bookings) {
+    for (const b of allBookings) {
       const status = normalizeStatus(b.status);
       if (status !== 'PENDING') continue;
       if (approvedBookings.some((a) => overlaps(b, a))) ids.add(b.id);
     }
     return ids;
-  }, [bookings, approvedBookings]);
+  }, [allBookings, approvedBookings]);
 
   const load = useCallback(async () => {
     if (!isAdmin) return;
     setLoading(true);
     setError(null);
     try {
-      const data = await adminSearchBookings({
-        userId: filters.userId ? Number(filters.userId) : undefined,
-        resourceId: filters.resourceId ? Number(filters.resourceId) : undefined,
-        status: filters.status ? filters.status : undefined,
-        actingRole,
+      const [bookingsData, usersData, facilitiesResponse] = await Promise.all([
+        adminSearchBookings({
+          status: undefined,
+          actingRole,
+        }),
+        userAPI.getAll(),
+        axiosInstance.get('/facilities'),
+      ]);
+
+      const userMap = {};
+      (Array.isArray(usersData) ? usersData : []).forEach((u) => {
+        if (u?.id == null) return;
+        userMap[u.id] = u.name || u.email || `User #${u.id}`;
       });
-      setBookings(Array.isArray(data) ? data : []);
+
+      const resourceMap = {};
+      const facilities = Array.isArray(facilitiesResponse?.data) ? facilitiesResponse.data : [];
+      facilities.forEach((f) => {
+        if (f?.id == null) return;
+        resourceMap[f.id] = f.name || `Resource #${f.id}`;
+      });
+
+      setUsersById(userMap);
+      setResourcesById(resourceMap);
+      setAllBookings(Array.isArray(bookingsData) ? bookingsData : []);
     } catch (err) {
       setError(err?.response?.data?.message || err?.message || 'Failed to load bookings');
     } finally {
       setLoading(false);
     }
-  }, [filters, isAdmin]);
+  }, [isAdmin]);
 
   useEffect(() => {
     load().catch(() => {});
   }, [load]);
+
+  const applyFilters = () => {
+    setFilters({ ...filterInputs });
+  };
 
   const approve = async (booking) => {
     setActionId(booking.id);
@@ -174,30 +224,30 @@ function AdminBookingPage() {
           <section className="dashboard-card booking-dashboard-card">
             <div className="admin-filters">
               <label>
-                <span>User ID</span>
+                <span>User Name</span>
                 <input
-                  type="number"
-                  value={filters.userId}
-                  onChange={(e) => setFilters((f) => ({ ...f, userId: e.target.value }))}
-                  placeholder="e.g. 10"
+                  type="text" 
+                  value={filterInputs.userName}
+                  onChange={(e) => setFilterInputs((f) => ({ ...f, userName: e.target.value }))}
+                  placeholder="Name"
                 />
               </label>
 
               <label>
-                <span>Resource ID</span>
+                <span>Resource Name</span>
                 <input
-                  type="number"
-                  value={filters.resourceId}
-                  onChange={(e) => setFilters((f) => ({ ...f, resourceId: e.target.value }))}
-                  placeholder="e.g. 3"
+                  type="text"
+                  value={filterInputs.resourceName}
+                  onChange={(e) => setFilterInputs((f) => ({ ...f, resourceName: e.target.value }))}
+                  placeholder="e.g. Lecture Hall A"
                 />
               </label>
 
               <label>
                 <span>Status</span>
                 <select
-                  value={filters.status}
-                  onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value }))}
+                  value={filterInputs.status}
+                  onChange={(e) => setFilterInputs((f) => ({ ...f, status: e.target.value }))}
                 >
                   <option value="">All</option>
                   <option value="PENDING">PENDING</option>
@@ -207,7 +257,7 @@ function AdminBookingPage() {
                 </select>
               </label>
 
-              <button className="refresh-btn" onClick={load} disabled={loading}>
+              <button className="refresh-btn" onClick={applyFilters} disabled={loading}>
                 Apply filters
               </button>
             </div>
@@ -237,8 +287,8 @@ function AdminBookingPage() {
                       key={b.id}
                     >
                       <div>#{b.id}</div>
-                      <div>#{b.userId}</div>
-                      <div>#{b.resourceId}</div>
+                      <div>{getUserName(b.userId)}</div>
+                      <div>{getResourceName(b.resourceId)}</div>
                       <div>{b.bookingDate || ''}</div>
                       <div>
                         {String(b.startTime || '').slice(0, 5)} - {String(b.endTime || '').slice(0, 5)}

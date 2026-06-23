@@ -38,11 +38,12 @@ public class BookingController {
     public ResponseEntity<List<Booking>> getAllBookings() {
         return ResponseEntity.ok(bookingService.getAllBookings());
     }
-
+    //trigger the booking creation process, which includes validation and overlap checks
     @PostMapping
     public ResponseEntity<?> createBooking(@RequestBody Booking booking, Authentication authentication) {
         try {
             Long authenticatedUserId = resolveAuthenticatedUserId(authentication);
+            //call the service method to create the booking, which will perform all necessary checks and persist the booking if valid
             Booking created = bookingService.createBooking(booking, authenticatedUserId);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (IllegalArgumentException | IllegalStateException e) {
